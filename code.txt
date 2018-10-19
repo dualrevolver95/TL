@@ -2,53 +2,51 @@ Programa test
 {
 	public static void Main() 
 	{		
-		istr s1 = "2";
-		ichr c1 = '3', c2;		
-		inum n1 = 0, n2 = 2, n3 = 2, x;		
-		idec d1;
-
-		x= 2;
+		string s1 = "hola";
+		char c1 = '3', c2;		
+		int n1 = 0, n2 = 2, n3 = 2, x;		
+		float d1;
 				
 		
-		irepetir(n2 = 0; n2 < 10; n2++ )
+		for(n2 = 0; n2 < 10; n2++ )
 		{
-			iescribir(n2);
+			printf(n2);
 		}
 		
-		ien( n1 >= 0 )
+		if( n1 >= 0 )
 		{
 			n1 = n3 / n2;
 		} 
-		ien otro(n1 < 10)
+		else if(n1 < 10)
 		{ 
 			n1 = n2 - n3; 
 		}
-		iotro
+		else
 		{
-			iescribir("Ninguna opcion");
+			printf("Ninguna opcion");
 		}
 		
-		ia
+		do
 		{
 			x = x + 1;
-			iescribir(x);
+			printf(x);
 		}
-		iespera(x < 5)
+		while(x < 5)
 		
-		iespera(n1 <= 20)
+		while(n1 <= 20)
 		{
 			n1++;
-			iescribir(n1);
+			printf(n1);
 		}
 		
-		ialternativa(n3)
+		switch(n3)
 		{
-			iopcion 3:
+			case 3:
 				n1 = 2 + 2;
-			itermina;
-			ipredef:
+				break;
+			default:
 				n1 = 10;
-			itermina;	
+				break;	
 		}		
 	}
 }

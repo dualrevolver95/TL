@@ -38,18 +38,18 @@ TOKEN:
 	| <VOID: "void"> //11
 	| <MAIN: "public static void Main()"> //12
 	| <PROGRAMA: "Programa" >  //13
-	| <IF: "ien" > //14
-	| <ELSE:"iotro" > //15
-	| <ELSEIF:"ien otro" > //16
-	| <FOR:"irepetir" > //17
-	| <SWITCH:"ialternativa" > //18
-	| <CASE:"iopcion" > //19
-	| <BREAK:"itermina" > //20
-	| <DEFAUL:"ipredef" > //21
-	| <DO:"ia" > //22
-	| <WHILE:"iespera" > //23
-	| <WRITE:"iescribir" > //24
-	| <READ:"ileer" > //25
+	| <IF: "if" > //14
+	| <ELSE:"else" > //15
+	| <ELSEIF:"else if" > //16
+	| <FOR:"for" > //17
+	| <SWITCH:"switch" > //18
+	| <CASE:"case" > //19
+	| <BREAK:"break" > //20
+	| <DEFAUL:"default" > //21
+	| <DO:"do" > //22
+	| <WHILE:"while" > //23
+	| <WRITE:"printf" > //24
+	| <READ:"scanf" > //25
 }
 TOKEN:
 {
@@ -78,10 +78,10 @@ TOKEN:
 
 TOKEN:
 {
-	  <INT:"inum"> //44
-	| <DEC: "idec"> //45
-	| <CHR: "ichr"> //46
-	| <STR: "istr"> //47
+	  <INT:"int"> //44
+	| <DEC: "float"> //45
+	| <CHR: "char"> //46
+	| <STR: "string"> //47
 	| <NUMBER : (["0"-"9"])+>  //48
 	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //49
 	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //50
