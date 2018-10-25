@@ -6,7 +6,8 @@ Programa test
 		char c1 = '3', c2;		
 		int n1 = 0, n2 = 2, n3 = 2, x;		
 		float d1;
-				
+		int n4 = 4;
+		
 		
 		for(n2 = 0; n2 < 10; n2++ )
 		{

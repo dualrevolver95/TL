@@ -12,7 +12,7 @@ class comp implements compConstants {
                 catch(ParseException e)
                 {
                         System.out.println(e.getMessage());
-                        System.out.println("\u005ctAnalizador ha terminado.");
+                        System.out.println("\u005ctCompilo con errores.");
                 }
         }
 

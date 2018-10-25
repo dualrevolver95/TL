@@ -39,6 +39,7 @@ class TokenAsignaciones
 		decComp.add(48);
 		decComp.add(50);
 		
+		chrComp.add(48);
 		chrComp.add(46);
 		chrComp.add(52);
 		
@@ -95,7 +96,7 @@ class TokenAsignaciones
 
 			
 	  
-		
+		segunda = 0;
 		if(tipoIdent1 == 44) //Int
 		{
 			//Si la lista de enteros(intComp) contiene el valor de tipoIdent2, entonces es compatible y se puede hacer la asignacion
@@ -139,6 +140,7 @@ class TokenAsignaciones
 		{
 			return "El Identificador " + TokenIzq.image + " no ha sido declarado" + " Linea: " + TokenIzq.beginLine;
 		}
+
 	}	  
 	
 	
