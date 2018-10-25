@@ -39,9 +39,9 @@ class TokenAsignaciones
 		decComp.add(48);
 		decComp.add(50);
 		
-		chrComp.add(48);
 		chrComp.add(46);
 		chrComp.add(52);
+		chrComp.add(48);
 		
 		strComp.add(47);
 		strComp.add(51);
@@ -138,7 +138,7 @@ class TokenAsignaciones
 		}
 		else
 		{
-			return "El Identificador " + TokenIzq.image + " no ha sido declarado" + " Linea: " + TokenIzq.beginLine;
+			return "El Identificador 3" + TokenIzq.image + " no ha sido declarado" + " Linea: " + TokenIzq.beginLine;
 		}
 
 	}	  

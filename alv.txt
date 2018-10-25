@@ -1,16 +1,15 @@
 Programa test{
 	public static void Main() 
 	{
-	char a = 75;
-	char b = 8;
-	char resultado = 4;
+	char a = 23;
+	char b = 90;
+	char resultado;
 
-	printf( "a = % d  b = % d " ,a , b ) ;
-	if  (  a & b)
-		printf("e l  cuarto  bit  de  la  variable  a  es  1\n " ) ;
-	else
-		printf( "e l  cuarto  bit  de  la  variable  a  es  0 \n " ) ;
+	printf(a);
 
-	return  0;
+	resultado = a & b;
+
+	printf(resultado);
+
 	}
 }

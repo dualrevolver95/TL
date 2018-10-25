@@ -114,6 +114,12 @@ public interface compConstants {
   int CARAC = 52;
   /** RegularExpression Id. */
   int DOUBLEPOINT = 53;
+  /** RegularExpression Id. */
+  int ANDL = 54;
+  /** RegularExpression Id. */
+  int ORL = 55;
+  /** RegularExpression Id. */
+  int XOR = 56;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -174,6 +180,9 @@ public interface compConstants {
     "<CADENA>",
     "<CARAC>",
     "\":\"",
+    "\"&\"",
+    "\"|\"",
+    "\"^\"",
     "\" \"",
     "\"\\n\"",
     "\"\\r\"",
