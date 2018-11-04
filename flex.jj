@@ -36,7 +36,7 @@ TOKEN:
 	| <PRIVATE: "private"> //9
 	| <STATIC: "static"> //10
 	| <VOID: "void"> //11
-	| <MAIN: "public static void Main()"> //12
+	| <MAIN: "Main"> //12
 	| <PROGRAMA: "Programa" >  //13
 	| <IF: "if" > //14
 	| <ELSE:"else" > //15
@@ -105,7 +105,7 @@ SKIP :
 void Programa() :
 {}
 {
-	<PROGRAMA><IDENTIFIER><LBRACE>Bloque()<RBRACE><EOF>	
+	Bloque()<EOF>	
 }
 void Bloque():
 {}
@@ -124,8 +124,8 @@ void Principal():
 	TokenAsignaciones.SetTables();	
 }
 {
-	<MAIN>
-	<LBRACE>Sentencias()<RBRACE> 	
+	<INT>
+	<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()<RBRACE> 	
 }
 
 
