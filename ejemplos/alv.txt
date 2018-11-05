@@ -1,0 +1,31 @@
+
+int funciona(int a, char b, float c){
+	return c;
+}
+
+int var;
+
+int Main(void){
+
+	char a = 23;
+	char b = 90;
+	char resultado;
+
+	printf(a);
+
+	resultado = a & b;
+
+	printf(resultado);
+
+
+	if(a > b){
+		a = b;
+	}
+
+	for(a=0; a<10; a++){
+		printf(a);
+	}
+
+	return 0;
+
+}
