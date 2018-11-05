@@ -23,103 +23,101 @@ public interface compConstants {
   /** RegularExpression Id. */
   int DECR = 7;
   /** RegularExpression Id. */
-  int PUBLIC = 8;
+  int VOID = 8;
   /** RegularExpression Id. */
-  int PRIVATE = 9;
+  int MAIN = 9;
   /** RegularExpression Id. */
-  int STATIC = 10;
+  int IF = 10;
   /** RegularExpression Id. */
-  int VOID = 11;
+  int ELSE = 11;
   /** RegularExpression Id. */
-  int MAIN = 12;
+  int FOR = 12;
   /** RegularExpression Id. */
-  int PROGRAMA = 13;
+  int SWITCH = 13;
   /** RegularExpression Id. */
-  int IF = 14;
+  int CASE = 14;
   /** RegularExpression Id. */
-  int ELSE = 15;
+  int BREAK = 15;
   /** RegularExpression Id. */
-  int ELSEIF = 16;
+  int DEFAUL = 16;
   /** RegularExpression Id. */
-  int FOR = 17;
+  int DO = 17;
   /** RegularExpression Id. */
-  int SWITCH = 18;
+  int WHILE = 18;
   /** RegularExpression Id. */
-  int CASE = 19;
+  int WRITE = 19;
   /** RegularExpression Id. */
-  int BREAK = 20;
+  int READ = 20;
   /** RegularExpression Id. */
-  int DEFAUL = 21;
+  int RETURN = 21;
   /** RegularExpression Id. */
-  int DO = 22;
+  int LPAREN = 22;
   /** RegularExpression Id. */
-  int WHILE = 23;
+  int RPAREN = 23;
   /** RegularExpression Id. */
-  int WRITE = 24;
+  int LBRACE = 24;
   /** RegularExpression Id. */
-  int READ = 25;
+  int RBRACE = 25;
   /** RegularExpression Id. */
-  int LPAREN = 26;
+  int LBRACKET = 26;
   /** RegularExpression Id. */
-  int RPAREN = 27;
+  int RBRACKET = 27;
   /** RegularExpression Id. */
-  int LBRACE = 28;
+  int SEMICOLON = 28;
   /** RegularExpression Id. */
-  int RBRACE = 29;
+  int COMMA = 29;
   /** RegularExpression Id. */
-  int LBRACKET = 30;
+  int DOT = 30;
   /** RegularExpression Id. */
-  int RBRACKET = 31;
+  int DOUBLECOMMA = 31;
   /** RegularExpression Id. */
-  int SEMICOLON = 32;
+  int EQ = 32;
   /** RegularExpression Id. */
-  int COMMA = 33;
+  int LE = 33;
   /** RegularExpression Id. */
-  int DOT = 34;
+  int MN = 34;
   /** RegularExpression Id. */
-  int DOUBLECOMMA = 35;
+  int LSHIFTB = 35;
   /** RegularExpression Id. */
-  int EQ = 36;
+  int GE = 36;
   /** RegularExpression Id. */
-  int LE = 37;
+  int GR = 37;
   /** RegularExpression Id. */
-  int MN = 38;
+  int RSHIFTB = 38;
   /** RegularExpression Id. */
-  int GE = 39;
+  int NE = 39;
   /** RegularExpression Id. */
-  int GR = 40;
+  int OR = 40;
   /** RegularExpression Id. */
-  int NE = 41;
+  int ORB = 41;
   /** RegularExpression Id. */
-  int OR = 42;
+  int AND = 42;
   /** RegularExpression Id. */
-  int AND = 43;
+  int ANDB = 43;
   /** RegularExpression Id. */
-  int INT = 44;
+  int XORB = 44;
   /** RegularExpression Id. */
-  int DEC = 45;
+  int NOTB = 45;
   /** RegularExpression Id. */
-  int CHR = 46;
+  int INT = 46;
   /** RegularExpression Id. */
-  int STR = 47;
+  int DEC = 47;
   /** RegularExpression Id. */
-  int NUMBER = 48;
+  int CHR = 48;
   /** RegularExpression Id. */
-  int IDENTIFIER = 49;
+  int STR = 49;
   /** RegularExpression Id. */
-  int DECIMAL = 50;
+  int NUMBER = 50;
   /** RegularExpression Id. */
-  int CADENA = 51;
+  int IDENTIFIER = 51;
   /** RegularExpression Id. */
-  int CARAC = 52;
+  int DECIMAL = 52;
   /** RegularExpression Id. */
-  int DOUBLEPOINT = 53;
+  int CADENA = 53;
   /** RegularExpression Id. */
-  int ANDL = 54;
+  int CARAC = 54;
   /** RegularExpression Id. */
-  int ORL = 55;
-  /** RegularExpression Id. */
-  int XOR = 56;
+  int DOUBLEPOINT = 55;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -134,15 +132,10 @@ public interface compConstants {
     "\"/\"",
     "\"++\"",
     "\"--\"",
-    "\"public\"",
-    "\"private\"",
-    "\"static\"",
     "\"void\"",
-    "\"public static void Main()\"",
-    "\"Programa\"",
+    "\"Main\"",
     "\"if\"",
     "\"else\"",
-    "\"else if\"",
     "\"for\"",
     "\"switch\"",
     "\"case\"",
@@ -152,6 +145,7 @@ public interface compConstants {
     "\"while\"",
     "\"printf\"",
     "\"scanf\"",
+    "\"return\"",
     "\"(\"",
     "\")\"",
     "\"{\"",
@@ -165,11 +159,17 @@ public interface compConstants {
     "\"==\"",
     "\"<=\"",
     "\"<\"",
+    "\"<<\"",
     "\">=\"",
     "\">\"",
+    "\">>\"",
     "\"!=\"",
     "\"||\"",
+    "\"|\"",
     "\"&&\"",
+    "\"&\"",
+    "\"^\"",
+    "\"~\"",
     "\"int\"",
     "\"float\"",
     "\"char\"",
@@ -180,9 +180,6 @@ public interface compConstants {
     "<CADENA>",
     "<CARAC>",
     "\":\"",
-    "\"&\"",
-    "\"|\"",
-    "\"^\"",
     "\" \"",
     "\"\\n\"",
     "\"\\r\"",
