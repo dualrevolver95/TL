@@ -33,7 +33,7 @@ TOKEN:
 TOKEN:
 {
 	  <VOID: "void"> //8
-	| <MAIN: "Main"> //9
+	| <MAIN: "Main" | "main"> //9
 	| <IF: "if" > //10
 	| <ELSE:"else" > //11
 	| <FOR:"for" > //12
@@ -96,18 +96,39 @@ TOKEN:
 
 SKIP : 
 { 
-	" "|"\n" | "\r" | "\r\n" | "\t"
+	 	" "
+	|	"\n"
+	|	"\r"
+	|	"\r\n"
+	|	"\t"
+	|	< "//" (~["\n","\r"])* ("\n" | "\r" | "\r\n") >  //Comentario de linea
+	|   < "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >	//Comentario de bloque
 }
 
 void Programa() :
 {}
 {
-	Funcion()Bloque()<EOF>	
+	Definiciones()<EOF>	
 }
 void Bloque():
 {}
 {
-	LOOKAHEAD(3) Funcion() | LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
+	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
+}
+
+void Definiciones():
+{}
+{
+	LOOKAHEAD(3) ( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) | ( LOOKAHEAD(3) VariablesGlobales() | Principal() )
+}
+
+//Cuerpo de funciones
+void Funcion():
+{}
+{
+	(<VOID>|<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER><LPAREN>
+	((<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?)*)*
+	<RPAREN><LBRACE>Sentencias()(SentenciaReturn())?<RBRACE> Definiciones()
 }
 
 void VariablesGlobales():
@@ -397,16 +418,6 @@ void SentenciaSwitch():
 {
 	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
 }
-
-//Cuerpo de funciones
-void Funcion():
-{}
-{
-	(<VOID>|<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER><LPAREN>
-	((<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?)*)*
-	<RPAREN><LBRACE>Sentencias()(SentenciaReturn())?<RBRACE>
-}
-
 
 //OPERADORES DE BITS
 int OpBits():
