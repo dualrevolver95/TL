@@ -10,15 +10,15 @@ int funcionC(int a, char b, float c){
 	return c;
 }
 
-//int funcionD(int a, char b, float c){
-//	return c;
-//}
+int funcionD(int a, char b, float c){
+	return c;
+}
 
 int Main(void){
 
 	char a = 23;
 	char b = 90;
-	char resultado;
+	/*char resultado;*/
 
 	printf(a);
 

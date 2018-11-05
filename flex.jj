@@ -102,7 +102,14 @@ SKIP :
 	|	"\r\n"
 	|	"\t"
 	|	< "//" (~["\n","\r"])* ("\n" | "\r" | "\r\n") >  //Comentario de linea
-	|   < "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/" >	//Comentario de bloque
+	|	< "/*" > : IN_COMMENT    //Cuando encuentra /* pasa al estado IN_COMMENT
+}
+
+//Acciones cuando está en el estado IN_COMMENT
+<IN_COMMENT> SKIP:
+{
+		<"*/"> : DEFAULT
+	|	<~[] >
 }
 
 void Programa() :
