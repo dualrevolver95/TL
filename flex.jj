@@ -102,12 +102,12 @@ SKIP :
 void Programa() :
 {}
 {
-	Bloque()<EOF>	
+	Funcion()Bloque()<EOF>	
 }
 void Bloque():
 {}
 {
-	LOOKAHEAD(2)VariablesGlobales() | Principal()
+	LOOKAHEAD(3) Funcion() | LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
 }
 
 void VariablesGlobales():
@@ -124,7 +124,6 @@ void Principal():
 	<INT>
 	<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
 }
-
 
 void VariablesLocales():
 {
@@ -398,6 +397,16 @@ void SentenciaSwitch():
 {
 	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
 }
+
+//Cuerpo de funciones
+void Funcion():
+{}
+{
+	(<VOID>|<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER><LPAREN>
+	((<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?)*)*
+	<RPAREN><LBRACE>Sentencias()(SentenciaReturn())?<RBRACE>
+}
+
 
 //OPERADORES DE BITS
 int OpBits():
