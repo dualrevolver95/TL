@@ -1,40 +1,23 @@
-int funciona(int a, char b, float c){
-	return c;
-}
-
-int funcionB(int a, char b, float c){
-	return c;
-}
-
-int funcionC(int a, char b, float c){
-	return c;
-}
-
-int funcionD(int a, char b, float c){
-	return c;
-}
 
 int Main(void){
 
-	char a = 23;
-	char b = 90;
-	/*char resultado;*/
+	int a = 60;	/* 60 = 0011 1100 */  
+    int b = 13;	/* 13 = 0000 1101 */
+    int c = 0;
+    float d = 2.2;
+    int val = 0;
+    int n = 1;
+    int logico;
 
-	printf(a);
+    c = a & b;
+    
+    /*printf(c);*/
+    
+     /*val=esUno(n);*/
 
-	resultado = a & b;
+    /*logico = opeLogicos();*/
 
-	printf(resultado);
-
-
-	if(a > b){
-		a = b;
-	}
-
-	for(a=0; a<10; a++){
-		printf(a);
-	}
-
-	return 0;
+    return 0;
 
 }
+
