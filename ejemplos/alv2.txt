@@ -9,6 +9,6 @@ int Main(void){
 	int b = 2;
 	int c;
 
-	c = resultado(a,b);
+
 	return 0;
 }
