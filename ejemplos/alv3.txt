@@ -1,11 +1,8 @@
 int main(void){
 	
 
-	char a = 23;
-	char b = 90;
-    char resultado;
+	int a = 1;
 
-    resultado = a & b;
-	
-	return 0;
+
+    return 0;
 }

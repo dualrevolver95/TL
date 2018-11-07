@@ -16,23 +16,23 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants/*@egen*/
 		try
 		{	
 
-			String aux;
-    		STC    aux2;	
+			//String aux;
+    		//STC    aux2;	
 
-			System.out.println("Inicia el parser\n");
+			//System.out.println("Inicia el parser\n");
 
      		comp analizador = new comp( System.in ) ;
 			SimpleNode n = analizador.Programa();
 
-			System.out.println("Previo a enum\n");
+			//System.out.println("Previo a enum\n");
 
 			n.dump(" ");
 
-			Enumeration t = SymTable.keys();
+			//Enumeration t = SymTable.keys();
 
-			System.out.println(t);
+			//System.out.println(t);
 
-			while ( t.hasMoreElements() == true ) {
+			/*while ( t.hasMoreElements() == true ) {
 
 				aux = (String)t.nextElement();
 				aux2 = (STC)SymTable.get(aux);
@@ -43,14 +43,15 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants/*@egen*/
           		if ( aux2.value != null )
             		System.out.println(" Valor: " + aux2.value);
 
-			}
-
+			}*/
+			TokenAsignaciones.mostrarTabla();
 			System.out.println("\tAnalizador ha terminado.");			
 		}
 		catch(ParseException e)
 		{
 			System.out.println(e.getMessage());
 			System.out.println("\tCompil\u00c3\u00b3 con errores.");
+			TokenAsignaciones.mostrarTabla();
 		}
 	}
 }
@@ -122,13 +123,12 @@ TOKEN:
 	  <INT:"int"> //46
 	| <DEC: "float"> //47
 	| <CHR: "char"> //48
-	| <STR: "string"> //49
-	| <NUMBER : (["0"-"9"])+>  //50
-	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //51
-	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //52
-	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //53
-	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//54
-	| <DOUBLEPOINT : ":"> //55
+	| <NUMBER : (["0"-"9"])+>  //49
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //50
+	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //51
+	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //52
+	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//53
+	| <DOUBLEPOINT : ":"> //54
 }
 
 SKIP : 
@@ -149,7 +149,7 @@ SKIP :
 	|	<~[] >
 }
 
-SimpleNode Programa() :
+SimpleNode Programa():
 {/*@bgen(jjtree) Programa */
   SimpleNode jjtn000 = new SimpleNode(JJTPROGRAMA);
   boolean jjtc000 = true;
@@ -185,68 +185,16 @@ SimpleNode Programa() :
         }
 /*@egen*/
 }
-void Bloque():
-{/*@bgen(jjtree) Bloque */
-  SimpleNode jjtn000 = new SimpleNode(JJTBLOQUE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) Bloque */
-        try {
-/*@egen*/
-	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+void Bloque()      :
+{}
+{
+	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
 }
 
-void Definiciones():
-{/*@bgen(jjtree) Definiciones */
-  SimpleNode jjtn000 = new SimpleNode(JJTDEFINICIONES);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) Definiciones */
-        try {
-/*@egen*/
-	LOOKAHEAD(3) ( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) | ( LOOKAHEAD(3) VariablesGlobales() | Principal() )/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+void Definiciones()      :
+{}
+{
+	LOOKAHEAD(3) ( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) | ( LOOKAHEAD(3) VariablesGlobales() | Principal() )
 }
 
 //Cuerpo de funciones
@@ -261,8 +209,8 @@ void Funcion():
 {/*@bgen(jjtree) Funcion */
         try {
 /*@egen*/
-	(<VOID>|<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER><LPAREN>
-	((<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?)*)*
+	(<VOID>|<INT>|<DEC>|<CHR>) <IDENTIFIER><LPAREN>
+	((<INT>|<DEC>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<CHR>)(<IDENTIFIER>)?)*)*
 	<RPAREN><LBRACE>Sentencias()(SentenciaReturn())?<RBRACE> Definiciones()/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -295,7 +243,7 @@ void VariablesGlobales():
 {/*@bgen(jjtree) VariablesGlobales */
         try {
 /*@egen*/
-	(<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> Bloque()/*@bgen(jjtree)*/
+	(<INT>|<DEC>|<CHR>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> Bloque()/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -372,14 +320,14 @@ try {
 	}
 	var = <IDENTIFIER> 
 	{		
-		TokenAsignaciones.InsertarSimbolo(var, td);
+		TokenAsignaciones.InsertarSimbolo(var, td, "local");
 	} 
 	[VariablesAsignacion(var)]
 	(
 		<COMMA>
 		var = <IDENTIFIER> 
 		{		
-			TokenAsignaciones.InsertarSimbolo(var, td);
+			TokenAsignaciones.InsertarSimbolo(var, td, "local");
 		} 
 		[VariablesAsignacion(var)]
 	)*	
@@ -741,7 +689,7 @@ void Operadores():
 {/*@bgen(jjtree) Operadores */
             try {
 /*@egen*/
-	    <EQ> 
+	    <EQ>
 	  | <LE> 
 	  | <GE> 
 	  | <NE> 
@@ -832,7 +780,6 @@ void TiposDatos():
 /*@egen*/
 	 <INT>
 	|<DEC>
-	|<STR>
 	|<CHR>/*@bgen(jjtree)*/
          } finally {
            if (jjtc000) {
@@ -894,7 +841,7 @@ void DeclaracionUnaVariable():
 	}
 	var = <IDENTIFIER> 
 	{		
-		TokenAsignaciones.InsertarSimbolo(var, td);
+		TokenAsignaciones.InsertarSimbolo(var, td, "local");
 	} 
 	[VariablesAsignacion(var)]/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {

@@ -2,41 +2,39 @@
 public interface compTreeConstants
 {
   public int JJTPROGRAMA = 0;
-  public int JJTBLOQUE = 1;
-  public int JJTDEFINICIONES = 2;
-  public int JJTFUNCION = 3;
-  public int JJTVARIABLESGLOBALES = 4;
-  public int JJTPRINCIPAL = 5;
-  public int JJTVARIABLESLOCALES = 6;
-  public int JJTVARIABLESASIGNACION = 7;
-  public int JJTVS = 8;
-  public int JJTSENTENCIAS = 9;
-  public int JJTSENTENCIAIF = 10;
-  public int JJTSINO = 11;
-  public int JJTA = 12;
-  public int JJTCOMPARACIONES = 13;
-  public int JJTVALOR = 14;
-  public int JJTEXPRESION = 15;
-  public int JJTOPERADORES = 16;
-  public int JJTOPARITMETICO = 17;
-  public int JJTTIPOSDATOS = 18;
-  public int JJTSENTENCIAFOR = 19;
-  public int JJTDECLARACIONUNAVARIABLE = 20;
-  public int JJTSENTENCIADO = 21;
-  public int JJTSENTENCIAWHILE = 22;
-  public int JJTSENTENCIAASIGNACION = 23;
-  public int JJTTIPOSASIGNACIONES = 24;
-  public int JJTSENTENCIAWRITE = 25;
-  public int JJTSENTENCIAREAD = 26;
-  public int JJTSENTENCIARETURN = 27;
-  public int JJTSENTENCIASWITCH = 28;
-  public int JJTOPBITS = 29;
+  public int JJTVOID = 1;
+  public int JJTFUNCION = 2;
+  public int JJTVARIABLESGLOBALES = 3;
+  public int JJTPRINCIPAL = 4;
+  public int JJTVARIABLESLOCALES = 5;
+  public int JJTVARIABLESASIGNACION = 6;
+  public int JJTVS = 7;
+  public int JJTSENTENCIAS = 8;
+  public int JJTSENTENCIAIF = 9;
+  public int JJTSINO = 10;
+  public int JJTA = 11;
+  public int JJTCOMPARACIONES = 12;
+  public int JJTVALOR = 13;
+  public int JJTEXPRESION = 14;
+  public int JJTOPERADORES = 15;
+  public int JJTOPARITMETICO = 16;
+  public int JJTTIPOSDATOS = 17;
+  public int JJTSENTENCIAFOR = 18;
+  public int JJTDECLARACIONUNAVARIABLE = 19;
+  public int JJTSENTENCIADO = 20;
+  public int JJTSENTENCIAWHILE = 21;
+  public int JJTSENTENCIAASIGNACION = 22;
+  public int JJTTIPOSASIGNACIONES = 23;
+  public int JJTSENTENCIAWRITE = 24;
+  public int JJTSENTENCIAREAD = 25;
+  public int JJTSENTENCIARETURN = 26;
+  public int JJTSENTENCIASWITCH = 27;
+  public int JJTOPBITS = 28;
 
 
   public String[] jjtNodeName = {
     "Programa",
-    "Bloque",
-    "Definiciones",
+    "void",
     "Funcion",
     "VariablesGlobales",
     "Principal",
@@ -66,4 +64,4 @@ public interface compTreeConstants
     "OpBits",
   };
 }
-/* JavaCC - OriginalChecksum=ff08769232067eec86f82563645fff79 (do not edit this line) */
+/* JavaCC - OriginalChecksum=6939cd41b852cfa1cfd3d738013e3b1f (do not edit this line) */
