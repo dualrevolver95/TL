@@ -1,0 +1,13 @@
+int main(void){
+
+  int na =9;
+  int nb =2;
+  char net='b';
+  float dos=3.5;
+
+  if(2<3){
+	na=nb+2;
+  }
+
+   return 0;
+}
