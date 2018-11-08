@@ -32,19 +32,16 @@ class TokenAsignaciones
 		 caracter = chrComp
 		*/
 		intComp.add(46);
-		intComp.add(50);
+		intComp.add(49);
 		
 		decComp.add(46);
 		decComp.add(47);
-		decComp.add(50);
-		decComp.add(52);
+		decComp.add(49);
+		decComp.add(51);
 		
 		chrComp.add(48);
-		chrComp.add(54);
-		chrComp.add(50);
-		
-		strComp.add(49);
-		strComp.add(53);
+		chrComp.add(53);
+		chrComp.add(49);
 	}
  
 	public static String checkAsing(Token TokenIzq, Token TokenAsig)
@@ -56,7 +53,7 @@ class TokenAsignaciones
 								asi como, si el token enviado es diferente a algun tipo que no se declara como los numeros(48), los decimales(50),
 								caracteres(52) y cadenas(51)
 								entonces tipoIdent1 = tipo_de_dato, ya que TokenAsig es un dato*/
-		if(TokenIzq.kind != 50 && TokenIzq.kind != 52)		
+		if(TokenIzq.kind != 49 && TokenIzq.kind != 51)		
 		{
 			try 
 			{
@@ -73,7 +70,7 @@ class TokenAsignaciones
 			tipoIdent1 = 0;
 			
 		//TokenAsig.kind != 48 && TokenAsig.kind != 50 && TokenAsig.kind != 51 && TokenAsig.kind != 52
-		if(TokenAsig.kind == 51)	
+		if(TokenAsig.kind == 50)	
 		{
 			/*Si el tipo de dato que se esta asignando, es algun identificador(kind == 49) 
 			se obtiene su tipo de la tabla de tokens para poder hacer las comparaciones*/
@@ -89,7 +86,7 @@ class TokenAsignaciones
 		}
 				//Si el dato es entero(48) o decimal(50) o caracter(51) o cadena(52)
 				//tipoIdent2 = tipo_del_dato
-		else if(TokenAsig.kind == 50 || TokenAsig.kind == 52 || TokenAsig.kind == 53 || TokenAsig.kind == 54)
+		else if(TokenAsig.kind == 49 || TokenAsig.kind == 51 || TokenAsig.kind == 52 || TokenAsig.kind == 53)
 			tipoIdent2 = TokenAsig.kind;
 		else //Si no, se inicializa en algun valor "sin significado(con respecto a los tokens)", para que la variable este inicializada y no marque error al comparar
 			tipoIdent2 = 0; 
@@ -128,16 +125,7 @@ class TokenAsignaciones
 			else //Si se esta asignando mas de un caracter manda el error 			
 				return "Error: No se puede asignar mas de un valor a un caracter \r\nLinea: " + TokenIzq.beginLine;
 			
-		}
-		else if(tipoIdent1 == 49) //string
-		{
-			if(strComp.contains(tipoIdent2))
-				return " ";
-			else
-				return "Error: No se puede convertir " + TokenAsig.image + " a Cadena \r\nLinea: " + TokenIzq.beginLine;
-		}
-		else
-		{
+		}{
 			return "El Identificador 3" + TokenIzq.image + " no ha sido declarado" + " Linea: " + TokenIzq.beginLine;
 		}
 

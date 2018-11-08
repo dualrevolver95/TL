@@ -40,6 +40,7 @@ public interface compTreeConstants
   public int JJTLBRACE = 36;
   public int JJTRBRACE = 37;
   public int JJTOPBITS = 38;
+  public int JJTERROR_SKIPTO = 39;
 
 
   public String[] jjtNodeName = {
@@ -82,6 +83,7 @@ public interface compTreeConstants
     "Lbrace",
     "Rbrace",
     "OpBits",
+    "error_skipto",
   };
 }
-/* JavaCC - OriginalChecksum=832ea94a608bcdb55d416eb186acf545 (do not edit this line) */
+/* JavaCC - OriginalChecksum=eb856e2772020e0cb41e5e557d78f5fc (do not edit this line) */

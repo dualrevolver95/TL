@@ -105,19 +105,17 @@ public interface compConstants {
   /** RegularExpression Id. */
   int CHR = 48;
   /** RegularExpression Id. */
-  int STR = 49;
+  int NUMBER = 49;
   /** RegularExpression Id. */
-  int NUMBER = 50;
+  int IDENTIFIER = 50;
   /** RegularExpression Id. */
-  int IDENTIFIER = 51;
+  int DECIMAL = 51;
   /** RegularExpression Id. */
-  int DECIMAL = 52;
+  int CADENA = 52;
   /** RegularExpression Id. */
-  int CADENA = 53;
+  int CARAC = 53;
   /** RegularExpression Id. */
-  int CARAC = 54;
-  /** RegularExpression Id. */
-  int DOUBLEPOINT = 55;
+  int DOUBLEPOINT = 54;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -175,7 +173,6 @@ public interface compConstants {
     "\"int\"",
     "\"float\"",
     "\"char\"",
-    "\"string\"",
     "<NUMBER>",
     "<IDENTIFIER>",
     "<DECIMAL>",
@@ -187,10 +184,10 @@ public interface compConstants {
     "\"\\r\"",
     "\"\\r\\n\"",
     "\"\\t\"",
-    "<token of kind 61>",
+    "<token of kind 60>",
     "\"/*\"",
     "\"*/\"",
-    "<token of kind 64>",
+    "<token of kind 63>",
   };
 
 }

@@ -127,14 +127,13 @@ TOKEN:
 {
 	  <INT:"int"> //46
 	| <DEC: "float"> //47
-	| <CHR: "char"> //48
-	| <STR: "string"> //49
-	| <NUMBER : (["0"-"9"])+>  //50
-	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //51
-	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //52
-	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //53
-	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//54
-	| <DOUBLEPOINT : ":"> //55
+	| <CHR: "char"> //48                                                                                        //Cadena era 49
+	| <NUMBER : (["0"-"9"])+>  //49
+	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //50
+	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //51
+	| <CADENA : <DOUBLECOMMA>["a"-"z","A"-"Z","0"-"9"," "](["a"-"z","A"-"Z","0"-"9"," ",":",";","."])*<DOUBLECOMMA>> //52
+	| <CARAC : "'"["a"-"z","A"-"Z","0"-"9"]"'" >//53
+	| <DOUBLEPOINT : ":"> //54
 }
 
 SKIP : 
@@ -214,7 +213,7 @@ void Funcion() :
 
 		<LBRACE> Sentencias()(SentenciaReturn())? <RBRACE> Definiciones()
 	}catch(ParseException e){
-		int[] follow = {VOID,INT,DEC,STR,CHR,EOF}; 
+		int[] follow = {VOID,INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
 	}
 }
@@ -225,7 +224,7 @@ void VariablesGlobales() #BloqueVariablesGlobales:
 	try{
 		(Int()|Dec()|Chr()) Identifier() (<COMMA>Identifier())* <SEMICOLON> Bloque()	
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,EOF}; 
+		int[] follow = {INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
 	}
 }
@@ -239,7 +238,7 @@ void Principal() #Main:
 		<INT>
 			<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,EOF}; 
+		int[] follow = {INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
 	}
 }
@@ -273,7 +272,7 @@ void VariablesLocales() #void:
 		)
 		(VS())
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,IF,FOR,DO,SWITCH,SEMICOLON,IDENTIFIER}; 
+		int[] follow = {INT,DEC,CHR,IF,FOR,DO,SWITCH,SEMICOLON,IDENTIFIER}; 
 		error_skipto(follow,e);
 	}
 }
@@ -311,7 +310,7 @@ void VariablesAsignacion(Token v1) #Asignacion:
 			}
 		  })*
 	}catch(ParseException e){
-		int[] follow = {COMMA,SEMICOLON,INT,DEC,STR,CHR}; 
+		int[] follow = {COMMA,SEMICOLON,INT,DEC,CHR}; 
 		error_skipto(follow,e);
 	}
 }
@@ -335,7 +334,7 @@ void Sentencias() #void:
 		| SentenciaSwitch()
 		)*
 	}catch(ParseException e){
-		int[] follow = {RBRACE,RETURN,INT,DEC,STR,CHR,SEMICOLON,RPAREN}; 
+		int[] follow = {RBRACE,RETURN,INT,DEC,CHR,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 }
@@ -347,7 +346,7 @@ void SentenciaIf():
 	try{
 		<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())? 
 	}catch(ParseException e){
-		int[] follow = {RBRACE,INT,DEC,STR,CHR,FOR,DO,SWITCH,IDENTIFIER,SEMICOLON,RPAREN}; 
+		int[] follow = {RBRACE,INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 }
@@ -359,7 +358,7 @@ void Sino():
 	try{
 		<ELSE><LBRACE> Sentencias() <RBRACE>
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,FOR,DO,SWITCH,IDENTIFIER}; 
+		int[] follow = {INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER}; 
 		error_skipto(follow,e);
 	}
 }
@@ -443,7 +442,6 @@ void TiposDatos() #TipoDato:
 {
 	 tk = <INT> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
 	|tk = <DEC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
-	|tk = <STR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
 	|tk = <CHR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
 }
 
@@ -455,7 +453,7 @@ void SentenciaFor():
 	try{
 		<FOR> <LPAREN>(DeclaracionUnaVariable()|SentenciaAsignacion())<SEMICOLON> Comparaciones() <SEMICOLON> SentenciaAsignacion() <RPAREN> <LBRACE> Sentencias() <RBRACE>
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,IF,DO,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		int[] follow = {INT,DEC,CHR,IF,DO,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 
@@ -490,7 +488,7 @@ void SentenciaDo():
 	try{
 		<DO> <LBRACE>Sentencias() <RBRACE> <WHILE> <LPAREN> Comparaciones() <RPAREN> | SentenciaWhile()
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 }
@@ -500,7 +498,7 @@ void SentenciaWhile():
 	try{
 		<WHILE> <LPAREN> Comparaciones() <RPAREN> <LBRACE> Sentencias() <RBRACE>
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 }
@@ -567,7 +565,7 @@ void TiposAsignaciones() #TipoAsignar:
 		| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine));} 
 		| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine));}
 	}catch(ParseException e){
-		int[] follow = {PLUS,MINUS,MULTIPLY,DIVIDE,ANDB,ORB,XORB,COMMA,SEMICOLON,INT,DEC,STR,CHR}; 
+		int[] follow = {PLUS,MINUS,MULTIPLY,DIVIDE,ANDB,ORB,XORB,COMMA,SEMICOLON,INT,DEC,CHR}; 
 		error_skipto(follow,e);
 	}
 }
@@ -603,7 +601,7 @@ void SentenciaSwitch():
 	try{
 		<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,STR,CHR,IF,DO,FOR,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		int[] follow = {INT,DEC,CHR,IF,DO,FOR,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
 	}
 
