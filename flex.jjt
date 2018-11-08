@@ -155,24 +155,38 @@ SKIP :
 	|	<~[] >
 }
 
+
 SimpleNode Programa() :
 {}
 {
-	Definiciones()<EOF>	{return jjtThis;}
-}
-void Bloque() #void:
-{}
-{
-	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
+	try{
+		Definiciones()<EOF>	{return jjtThis;}	
+	}catch(ParseException e){
+		int[] follow = {EOF}; 
+		error_skipto(follow,e);
+	}
 }
 
-void Definiciones() #BloqueDeDefiniciones:
+
+void Bloque() #void:
+{}
+{	
+	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
+	
+}
+
+void Definiciones() #BloqueDeDefiniciones : 
 {}
 {
-	LOOKAHEAD(3) 
+	try{
+		LOOKAHEAD(3) 
 		( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) 
 	| 
 		( LOOKAHEAD(3) VariablesGlobales() | Principal() )
+	}catch(ParseException e){
+		int[] follow = {EOF}; 
+		error_skipto(follow,e);
+	}
 }
 
 //Cuerpo de funciones
@@ -184,26 +198,36 @@ void Funcion() :
 	Token tk2;
 }
 {
-	( tk = <VOID>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine));} 
-	| tk= <INT> {jjtThis.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine));} 
-	| tk = <DEC>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine));} 
-	| tk= <CHR>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine));}) 
+	try{
+		( tk = <VOID>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine));} 
+		| tk= <INT> {jjtThis.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine));} 
+		| tk = <DEC>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine));} 
+		| tk= <CHR>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine));}) 
 
-	tk1= <IDENTIFIER> {jjtThis.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine));}
+		tk1= <IDENTIFIER> {jjtThis.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine));}
 
-	<LPAREN>
+		<LPAREN>
 
-	((Int()|Dec()|Chr())(Identifier())?(<COMMA>(Int()|Dec()|Chr())(Identifier())?)*)*
+		((Int()|Dec()|Chr())(Identifier())?(<COMMA>(Int()|Dec()|Chr())(Identifier())?)*)*
 
-	<RPAREN> 
+		<RPAREN> 
 
-	<LBRACE> Sentencias()(SentenciaReturn())? <RBRACE> Definiciones()
+		<LBRACE> Sentencias()(SentenciaReturn())? <RBRACE> Definiciones()
+	}catch(ParseException e){
+		int[] follow = {VOID,INT,DEC,STR,CHR,EOF}; 
+		error_skipto(follow,e);
+	}
 }
 
 void VariablesGlobales() #BloqueVariablesGlobales:
 {}
 {
-	(Int()|Dec()|Chr()) Identifier() (<COMMA>Identifier())* <SEMICOLON> Bloque()
+	try{
+		(Int()|Dec()|Chr()) Identifier() (<COMMA>Identifier())* <SEMICOLON> Bloque()	
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,EOF}; 
+		error_skipto(follow,e);
+	}
 }
 
 void Principal() #Main:
@@ -211,8 +235,13 @@ void Principal() #Main:
 	TokenAsignaciones.SetTables();	
 }
 {
-	<INT>
-	<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
+	try{
+		<INT>
+			<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,EOF}; 
+		error_skipto(follow,e);
+	}
 }
 
 void VariablesLocales() #void:
@@ -221,27 +250,32 @@ void VariablesLocales() #void:
 	Token var;	
 }
 {
-(
-	(TiposDatos())
-	{
-		td = token.kind;
+	try{
+		(
+			(TiposDatos())
+			{
+				td = token.kind;
+			}
+			var = <IDENTIFIER> 
+			{		
+				TokenAsignaciones.InsertarSimbolo(var, td);
+			} 
+			[VariablesAsignacion(var)]
+			(
+				<COMMA>
+				var = <IDENTIFIER> 
+				{		
+					TokenAsignaciones.InsertarSimbolo(var, td);
+				} 
+				[VariablesAsignacion(var)]
+			)*	
+				<SEMICOLON> 
+		)
+		(VS())
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,IF,FOR,DO,SWITCH,SEMICOLON,IDENTIFIER}; 
+		error_skipto(follow,e);
 	}
-	var = <IDENTIFIER> 
-	{		
-		TokenAsignaciones.InsertarSimbolo(var, td);
-	} 
-	[VariablesAsignacion(var)]
-	(
-		<COMMA>
-		var = <IDENTIFIER> 
-		{		
-			TokenAsignaciones.InsertarSimbolo(var, td);
-		} 
-		[VariablesAsignacion(var)]
-	)*	
-	<SEMICOLON> 
-)
-	(VS())
 }
 
 void VariablesAsignacion(Token v1) #Asignacion:
@@ -252,29 +286,34 @@ void VariablesAsignacion(Token v1) #Asignacion:
 	boolean imp = false;
 }
 {
-	<ASIGNACION>
-	(TiposAsignaciones())
-	  {  
-		v2 = token;
-		res = TokenAsignaciones.checkAsing(v1, v2);
-		
-		if(res != " ")
-		{
-			System.out.println(res);
-			imp = true;
-		}
-	  }
-	  (OpAritmetico()
-	  TiposAsignaciones()
-	  {  
-		v3 = token;
-		res = TokenAsignaciones.checkAsing(v1, v3);
-		
-		if(res != " " && !imp)
-		{
-			System.out.println(res);
-		}
-	  })*
+	try{
+		<ASIGNACION>
+		(TiposAsignaciones())
+		  {  
+			v2 = token;
+			res = TokenAsignaciones.checkAsing(v1, v2);
+			
+			if(res != " ")
+			{
+				System.out.println(res);
+				imp = true;
+			}
+		  }
+		  (OpAritmetico()
+		  TiposAsignaciones()
+		  {  
+			v3 = token;
+			res = TokenAsignaciones.checkAsing(v1, v3);
+			
+			if(res != " " && !imp)
+			{
+				System.out.println(res);
+			}
+		  })*
+	}catch(ParseException e){
+		int[] follow = {COMMA,SEMICOLON,INT,DEC,STR,CHR}; 
+		error_skipto(follow,e);
+	}
 }
 
 void VS() #void:
@@ -286,46 +325,76 @@ void VS() #void:
 void Sentencias() #void:
 {}
 {
-	(	
-	  VariablesLocales()	
-    | SentenciaIf() 	
-	| SentenciaFor()
-	| SentenciaDo()	
-	| LOOKAHEAD(2)SentenciaAsignacion()<SEMICOLON>{TokenAsignaciones.segunda = 0;}
-	| SentenciaWrite()
-	| SentenciaRead()<SEMICOLON>
-	| SentenciaSwitch()
-	)*
+	try{
+		(	
+		  VariablesLocales()	
+	    | SentenciaIf() 	
+		| SentenciaFor()
+		| SentenciaDo()	
+		| LOOKAHEAD(2)SentenciaAsignacion()<SEMICOLON>{TokenAsignaciones.segunda = 0;}
+		| SentenciaSwitch()
+		)*
+	}catch(ParseException e){
+		int[] follow = {RBRACE,RETURN,INT,DEC,STR,CHR,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
 }
 
 //Sentencia IF
 void SentenciaIf():
 {}
 {
-	<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())? 
+	try{
+		<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())? 
+	}catch(ParseException e){
+		int[] follow = {RBRACE,INT,DEC,STR,CHR,FOR,DO,SWITCH,IDENTIFIER,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
 }
+
+
 void Sino():
 {}
 {
-	<ELSE><LBRACE> Sentencias() <RBRACE>
+	try{
+		<ELSE><LBRACE> Sentencias() <RBRACE>
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,FOR,DO,SWITCH,IDENTIFIER}; 
+		error_skipto(follow,e);
+	}
 }
 
 void A():
 {}
-{
-	  Comparaciones() ([(<AND>|<OR>)] Comparaciones())*
+{	try{
+		Comparaciones() ([(<AND>|<OR>)] Comparaciones())*
+	}catch(ParseException e){
+		int[] follow = {RPAREN}; 
+		error_skipto(follow,e);
+	}
 }
 //Fin sentencia if
 
 void Comparaciones():
 {}
 {
-	Valor()Operadores()Valor()
+	try{
+		Valor()Operadores()Valor()
+	}catch(ParseException e){
+		int[] follow = {SEMICOLON,RPAREN,AND,OR}; 
+		error_skipto(follow,e);
+	}
 }
+
 void Valor():
 {}
 {
-	LOOKAHEAD(2) (<IDENTIFIER> | <NUMBER>) | Expresion()
+	try{
+		LOOKAHEAD(2) (<IDENTIFIER> | <NUMBER>) | Expresion()
+	}catch(ParseException e){
+		int[] follow = {EQ,LE,GE,NE,GR,MN}; 
+		error_skipto(follow,e);
+	}
 }
 void Expresion():
 {}
@@ -349,16 +418,21 @@ void Operadores():
 int OpAritmetico():
 {}
 {
-	  (<PLUS> {return 1;})
-	| (<MINUS> {return 1;})
-	| (<MULTIPLY> {return 1;})
-	| (<DIVIDE> {return 1;})
-	| (<ANDB> {return 1;})
-	| (<ORB> {return 1;})
-	| (<XORB> {return 1;})
-	| ({return 0;})
-	
-	{return 0;}
+	try{
+		  (<PLUS> {return 1;})
+		| (<MINUS> {return 1;})
+		| (<MULTIPLY> {return 1;})
+		| (<DIVIDE> {return 1;})
+		| (<ANDB> {return 1;})
+		| (<ORB> {return 1;})
+		| (<XORB> {return 1;})
+		| ({return 0;})
+		
+		{return 0;}
+	}catch(ParseException e){
+		int[] follow = {IDENTIFIER,NUMBER,IDENTIFIER,NUMBER,DECIMAL,CADENA,CARAC}; 
+		error_skipto(follow,e);
+	}
 }
 
 //SI SE PONE EN TABLA DE SIMBOLOS IMRPIME TIPO DE DATO, NO INCLUIR
@@ -378,7 +452,13 @@ void TiposDatos() #TipoDato:
 void SentenciaFor():
 {}
 {
-	<FOR> <LPAREN>(DeclaracionUnaVariable()|SentenciaAsignacion())<SEMICOLON> Comparaciones() <SEMICOLON> SentenciaAsignacion() <RPAREN> <LBRACE> Sentencias() <RBRACE> 
+	try{
+		<FOR> <LPAREN>(DeclaracionUnaVariable()|SentenciaAsignacion())<SEMICOLON> Comparaciones() <SEMICOLON> SentenciaAsignacion() <RPAREN> <LBRACE> Sentencias() <RBRACE>
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,IF,DO,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
+
 }
 
 void DeclaracionUnaVariable():
@@ -387,28 +467,42 @@ void DeclaracionUnaVariable():
 	Token var;	
 }
 {	
-	(TiposDatos())
-	{
-		td = token.kind;
-	}
-	var = <IDENTIFIER> { jjtThis.value=var.image; TS.put(var.image, new STC("NO C", var.image, var.beginLine));}
-	{		
-		TokenAsignaciones.InsertarSimbolo(var, td);
-	} 
-	[VariablesAsignacion(var)]		
+	try{
+		(TiposDatos())
+		{
+			td = token.kind;
+		}
+		var = <IDENTIFIER> { jjtThis.value=var.image; TS.put(var.image, new STC("NO C", var.image, var.beginLine));}
+		{		
+			TokenAsignaciones.InsertarSimbolo(var, td);
+		} 
+		[VariablesAsignacion(var)]	
+	}catch(ParseException e){
+		int[] follow = {SEMICOLON}; 
+		error_skipto(follow,e);
+	}	
 }
 
 //Sentencia DO
 void SentenciaDo():
 {}
 {
-	<DO> <LBRACE>Sentencias() <RBRACE> <WHILE> <LPAREN> Comparaciones() <RPAREN> | SentenciaWhile()
-		
+	try{
+		<DO> <LBRACE>Sentencias() <RBRACE> <WHILE> <LPAREN> Comparaciones() <RPAREN> | SentenciaWhile()
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
 }
 void SentenciaWhile():
 {}
 {
-	<WHILE> <LPAREN> Comparaciones() <RPAREN> <LBRACE> Sentencias() <RBRACE>
+	try{
+		<WHILE> <LPAREN> Comparaciones() <RPAREN> <LBRACE> Sentencias() <RBRACE>
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
 }
 
 //Sentencia ASIGNACION
@@ -422,50 +516,60 @@ void SentenciaAsignacion():
 	boolean imp = false;
 }
 {
-  v1 = <IDENTIFIER> { jjtThis.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine));} 
-  (<ASIGNACION>
-  (TiposAsignaciones())
-  {  
-    v2 = token;
-	res = TokenAsignaciones.checkAsing(v1, v2);
-	
-	if(res != " ")
-	{
-		System.out.println(res);
-		imp = true;
+	try{
+	  v1 = <IDENTIFIER> { jjtThis.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine));} 
+	  (<ASIGNACION>
+	  (TiposAsignaciones())
+	  {  
+	    v2 = token;
+		res = TokenAsignaciones.checkAsing(v1, v2);
+		
+		if(res != " ")
+		{
+			System.out.println(res);
+			imp = true;
+		}
+	  }
+	  (LOOKAHEAD(2)OpAritmetico()
+	  TiposAsignaciones()
+	  {  
+	    v3 = token;
+		res = TokenAsignaciones.checkAsing(v1, v3);
+		
+		if(res != " " && !imp)
+		{
+			System.out.println(res);
+		}
+	  })*  
+	  |
+	  (<INCR>|<DECR>)
+	  {  
+		res = TokenAsignaciones.checkVariable(v1);
+		
+		if(res != " ")	
+			System.out.println(res);	
+		}) 		
+	//SentenciaAsignacion ya trae <SEMICOLON> en el metodo Sentencias()
+	}catch(ParseException e){
+		int[] follow = {SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
 	}
-  }
-  (LOOKAHEAD(2)OpAritmetico()
-  TiposAsignaciones()
-  {  
-    v3 = token;
-	res = TokenAsignaciones.checkAsing(v1, v3);
-	
-	if(res != " " && !imp)
-	{
-		System.out.println(res);
-	}
-  })*  
-  |
-  (<INCR>|<DECR>)
-  {  
-	res = TokenAsignaciones.checkVariable(v1);
-	
-	if(res != " ")	
-		System.out.println(res);	
-  })
-  
-  //SentenciaAsignacion ya trae <SEMICOLON> en el metodo Sentencias()
 }
+
 void TiposAsignaciones() #TipoAsignar:
 {
 	Token tk;
 }
 {
-	  tk = <IDENTIFIER> { jjtThis.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine));} 
-	| tk = <NUMBER>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine));}
-	| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine));} 
-	| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine));}
+	try{
+		  tk = <IDENTIFIER> { jjtThis.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine));} 
+		| tk = <NUMBER>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine));}
+		| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine));} 
+		| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine));}
+	}catch(ParseException e){
+		int[] follow = {PLUS,MINUS,MULTIPLY,DIVIDE,ANDB,ORB,XORB,COMMA,SEMICOLON,INT,DEC,STR,CHR}; 
+		error_skipto(follow,e);
+	}
 }
 
 //Sentencia WRITE
@@ -485,13 +589,24 @@ void SentenciaRead():
 void SentenciaReturn():
 {}
 {
-	<RETURN>(<NUMBER>|<IDENTIFIER>|<DECIMAL>|<CADENA>|<CARAC>)<SEMICOLON>
+	try{
+		<RETURN>(<NUMBER>|<IDENTIFIER>|<DECIMAL>|<CADENA>|<CARAC>)<SEMICOLON>
+	}catch(ParseException e){
+		int[] follow = {RBRACE}; 
+		error_skipto(follow,e);
+	}
 }
 
 void SentenciaSwitch():
 {}
 {
-	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
+	try{
+		<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
+	}catch(ParseException e){
+		int[] follow = {INT,DEC,STR,CHR,IF,DO,FOR,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
+		error_skipto(follow,e);
+	}
+
 }
 
 
@@ -592,6 +707,21 @@ int OpBits():
 	{return 0;}
 }
 
+JAVACODE
+void error_skipto(int kind[],ParseException e) {
+  System.out.println(e.toString());  // print the error message
+  int size = kind.length;
+  Token t;
+  boolean flag = true;
+  do {
+  t = getNextToken();
+    for(int i = 0;i<size;i++){
+    	if(kind[i] == t.kind){
+    		flag = false;
+    	}
+    }
+    if(t.kind == EOF)
+    	flag = false;
 
-
-
+  } while (flag);
+}
