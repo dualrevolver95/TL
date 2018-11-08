@@ -1,3 +1,9 @@
+options {
+  IGNORE_CASE = false;
+  MULTI = true;
+  OPTIMIZE_TOKEN_MANAGER = true;
+}
+
 PARSER_BEGIN(comp)
 import java.io.*;
 import java.util.*;
@@ -5,7 +11,7 @@ import java.util.*;
 class comp 
 {
 
-	public static Hashtable SymTable = new Hashtable();
+	public static Hashtable TS = new Hashtable();
 
 	public static void main( String[] args )throws ParseException, Exception
 	{
@@ -20,24 +26,28 @@ class comp
      		comp analizador = new comp( System.in ) ;
 			SimpleNode n = analizador.Programa();
 
-			System.out.println("Previo a enum\n");
+			System.out.println("\n\nARBOL DE SINTAXIS\n\n");
 
 			n.dump(" ");
 
-			Enumeration t = SymTable.keys();
+			Enumeration t = TS.keys();
 
 			System.out.println(t);
+
+			System.out.println("\n\nTABLA DE SIMBOLOS\n\n");
 
 			while ( t.hasMoreElements() == true ) {
 
 				aux = (String)t.nextElement();
-				aux2 = (STC)SymTable.get(aux);
+				aux2 = (STC)TS.get(aux);
 				System.out.println(aux);
 
 				if ( aux2.type != null )
             		System.out.println(" Tipo: " + aux2.type);
           		if ( aux2.value != null )
             		System.out.println(" Valor: " + aux2.value);
+            	if ( aux2.numLineas != 0 )
+            		System.out.println(" Numero de linea: " + aux2.numLineas);
 
 			}
 
@@ -150,36 +160,53 @@ SimpleNode Programa() :
 {
 	Definiciones()<EOF>	{return jjtThis;}
 }
-void Bloque():
+void Bloque() #void:
 {}
 {
 	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
 }
 
-void Definiciones():
+void Definiciones() #BloqueDeDefiniciones:
 {}
 {
-	LOOKAHEAD(3) ( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) | ( LOOKAHEAD(3) VariablesGlobales() | Principal() )
+	LOOKAHEAD(3) 
+		( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) 
+	| 
+		( LOOKAHEAD(3) VariablesGlobales() | Principal() )
 }
 
 //Cuerpo de funciones
-void Funcion():
+void Funcion() :
 {
 	TokenAsignaciones.SetTables();
+	Token tk;
+	Token tk1;
+	Token tk2;
 }
 {
-	(<VOID>|<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER><LPAREN>
-	((<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?(<COMMA>(<INT>|<DEC>|<STR>|<CHR>)(<IDENTIFIER>)?)*)*
-	<RPAREN><LBRACE>Sentencias()(SentenciaReturn())?<RBRACE> Definiciones()
+	( tk = <VOID>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine));} 
+	| tk= <INT> {jjtThis.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine));} 
+	| tk = <DEC>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine));} 
+	| tk= <CHR>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine));}) 
+
+	tk1= <IDENTIFIER> {jjtThis.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine));}
+
+	<LPAREN>
+
+	((Int()|Dec()|Chr())(Identifier())?(<COMMA>(Int()|Dec()|Chr())(Identifier())?)*)*
+
+	<RPAREN> 
+
+	<LBRACE> Sentencias()(SentenciaReturn())? <RBRACE> Definiciones()
 }
 
-void VariablesGlobales():
+void VariablesGlobales() #BloqueVariablesGlobales:
 {}
 {
-	(<INT>|<DEC>|<STR>|<CHR>) <IDENTIFIER>(<COMMA><IDENTIFIER>)* <SEMICOLON> Bloque()
+	(Int()|Dec()|Chr()) Identifier() (<COMMA>Identifier())* <SEMICOLON> Bloque()
 }
 
-void Principal():
+void Principal() #Main:
 {
 	TokenAsignaciones.SetTables();	
 }
@@ -188,7 +215,7 @@ void Principal():
 	<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
 }
 
-void VariablesLocales():
+void VariablesLocales() #void:
 {
 	int td;
 	Token var;	
@@ -217,7 +244,7 @@ void VariablesLocales():
 	(VS())
 }
 
-void VariablesAsignacion(Token v1):
+void VariablesAsignacion(Token v1) #Asignacion:
 {
 	Token v2;
 	Token v3;
@@ -250,13 +277,13 @@ void VariablesAsignacion(Token v1):
 	  })*
 }
 
-void VS():
+void VS() #void:
 {}
 {
 	LOOKAHEAD(3)VariablesLocales() | Sentencias()
 }
 
-void Sentencias():
+void Sentencias() #void:
 {}
 {
 	(	
@@ -275,7 +302,7 @@ void Sentencias():
 void SentenciaIf():
 {}
 {
-	<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())* 
+	<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())? 
 }
 void Sino():
 {}
@@ -308,14 +335,16 @@ void Expresion():
 }
 
 void Operadores():
-{}
 {
-	    <EQ> 
-	  | <LE> 
-	  | <GE> 
-	  | <NE> 
-	  | <GR> 
-	  | <MN> 
+	Token tk;
+}
+{
+	    tk = <EQ> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+	  | tk = <LE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
+	  | tk = <GE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+	  | tk = <NE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+	  | tk = <GR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+	  | tk = <MN> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
 }
 int OpAritmetico():
 {}
@@ -332,13 +361,16 @@ int OpAritmetico():
 	{return 0;}
 }
 
-void TiposDatos():
-{}
+//SI SE PONE EN TABLA DE SIMBOLOS IMRPIME TIPO DE DATO, NO INCLUIR
+void TiposDatos() #TipoDato:
 {
-	 <INT>
-	|<DEC>
-	|<STR>
-	|<CHR>
+	Token tk;
+}
+{
+	 tk = <INT> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+	|tk = <DEC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
+	|tk = <STR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
+	|tk = <CHR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
 }
 
 
@@ -359,7 +391,7 @@ void DeclaracionUnaVariable():
 	{
 		td = token.kind;
 	}
-	var = <IDENTIFIER> 
+	var = <IDENTIFIER> { jjtThis.value=var.image; TS.put(var.image, new STC("NO C", var.image, var.beginLine));}
 	{		
 		TokenAsignaciones.InsertarSimbolo(var, td);
 	} 
@@ -390,7 +422,7 @@ void SentenciaAsignacion():
 	boolean imp = false;
 }
 {
-  v1 = <IDENTIFIER> 
+  v1 = <IDENTIFIER> { jjtThis.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine));} 
   (<ASIGNACION>
   (TiposAsignaciones())
   {  
@@ -425,14 +457,15 @@ void SentenciaAsignacion():
   
   //SentenciaAsignacion ya trae <SEMICOLON> en el metodo Sentencias()
 }
-void TiposAsignaciones():
-{}
+void TiposAsignaciones() #TipoAsignar:
 {
-	  <IDENTIFIER> 
-	| <NUMBER> 
-	| <DECIMAL> 
-	| <CADENA> 
-	| <CARAC>
+	Token tk;
+}
+{
+	  tk = <IDENTIFIER> { jjtThis.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine));} 
+	| tk = <NUMBER>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine));}
+	| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine));} 
+	| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine));}
 }
 
 //Sentencia WRITE
@@ -460,6 +493,93 @@ void SentenciaSwitch():
 {
 	<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
 }
+
+
+//Producciones Simbolos Terminales
+
+void Void():
+{
+	Token tk;
+}
+{
+	tk = <VOID> { jjtThis.value = tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine)); }
+}
+
+void Int():
+{
+	Token tk; 
+}
+{
+	tk = <INT> { jjtThis.value = tk.image; TS.put(tk.image, new STC("INT", tk.image, tk.beginLine)); }
+}
+
+void Dec():
+{}
+{
+	<DEC>
+}
+
+void Chr():
+{}
+{
+	<CHR>
+}
+
+void Identifier():
+{}
+{
+	<IDENTIFIER>
+}
+
+void Number():
+{}
+{
+	<NUMBER>
+}
+
+void Decimal():
+{}
+{
+	<DECIMAL>
+}
+
+void CARAC():
+{}
+{
+	<CARAC>
+}
+
+void Comma():
+{}
+{
+	<COMMA>
+}
+
+void Rparen():
+{}
+{
+	<RPAREN>
+}
+
+void Lparen():
+{}
+{
+	<LPAREN>
+}
+
+void Lbrace():
+{}
+{
+	<LBRACE>
+}
+
+void Rbrace():
+{}
+{
+	<RBRACE>
+}
+
+
 
 //OPERADORES DE BITS
 int OpBits():
