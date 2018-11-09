@@ -1,12 +1,12 @@
 # TL
 
-Lenguaje utilizado:
+# Lenguaje utilizado:
 Java
 
-Librerías utilizadas:
+# Librerías utilizadas:
 Javacc
 
-Compilar proyecto:
+# Compilar proyecto:
 1- Compilar archivo .jjt 
     Ej: jjtree flex.jjt
     
@@ -16,6 +16,6 @@ Compilar proyecto:
 3- Ejecutar todos los archivos .java
     Ej: javac *.java
     
-Ejecutar parser:
+# Ejecutar parser:
 1- Ejecutar el archivo comp.java, pasar como parámetro el archivo a analizar
-    Ej: java comp < ejemplos/
+    Ej: java comp < ejemplos/Ejemplo.txt
