@@ -4,55 +4,37 @@ import java.util.*;
 
 class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(jjtree)*/
   protected static JJTcompState jjtree = new JJTcompState();
-        public static Hashtable TS = new Hashtable();
+        public static ArrayList<STC> TS = new ArrayList<STC>();
         public static Stack<SimpleNode> Cxt = new Stack<SimpleNode>();
 
         public static void main( String[] args )throws ParseException, Exception
         {
-                try
-                {
+        try {
+            System.out.println("Inicia el parser\u005cn");
 
-                        String aux;
-                STC    aux2;
+            comp analizador = new comp(System.in);
+            SimpleNode n = analizador.Programa();
 
-                        System.out.println("Inicia el parser\u005cn");
+            System.out.println("\u005cn\u005cnARBOL DE SINTAXIS\u005cn\u005cn");
 
-                comp analizador = new comp( System.in ) ;
-                        SimpleNode n = analizador.Programa();
+            n.dump(" ");
+            System.out.println("\u005cn\u005cnTABLA DE SIMBOLOS\u005cn\u005cn");
 
-                        System.out.println("\u005cn\u005cnARBOL DE SINTAXIS\u005cn\u005cn");
+            for (STC val : TS){
+                if (val.type != null)
+                    System.out.println(" Tipo: " + val.type);
+                if (val.value != null)
+                    System.out.println(" Valor: " + val.value);
+                if (val.numLineas != 0)
+                    System.out.println(" Numero de linea: " + val.numLineas);
+                if (val.ambito != null)
+                    System.out.println(" Ambito: " + val.getAmbitoString());
+            }
 
-                        n.dump(" ");
-
-                        Enumeration t = TS.keys();
-
-                        System.out.println(t);
-
-                        System.out.println("\u005cn\u005cnTABLA DE SIMBOLOS\u005cn\u005cn");
-
-                        while ( t.hasMoreElements() == true ) {
-
-                                aux = (String)t.nextElement();
-                                aux2 = (STC)TS.get(aux);
-                                System.out.println(aux);
-
-                                if ( aux2.type != null )
-                        System.out.println(" Tipo: " + aux2.type);
-                        if ( aux2.value != null )
-                        System.out.println(" Valor: " + aux2.value);
-                if ( aux2.numLineas != 0 )
-                        System.out.println(" Numero de linea: " + aux2.numLineas);
-                if ( aux2.ambito != null )
-                        System.out.println(" Ambito: " + aux2.getAmbitoString());
-                        }
-
-                        System.out.println("\u005cn\u005ctAnalizador ha terminado.");
-                }
-                catch(ParseException e)
-                {
-                        System.out.println(e.getMessage());
-                        System.out.println("\u005ctCompil\u00f3 con errores.");
-                }
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            System.out.println("\u005ctCompil\u00c3\u00b3 con errores.");
+        }
         }
 
   static final public SimpleNode Programa() throws ParseException {
@@ -217,19 +199,19 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case VOID:
           tk = jj_consume_token(VOID);
-                                 jjtn000.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine, Cxt.peek()));
+                                 jjtn000.value=tk.image; TS.add(new STC("Void", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case INT:
           tk = jj_consume_token(INT);
-                             jjtn000.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine, Cxt.peek()));
+                             jjtn000.value=tk.image; TS.add(new STC("Int", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case DEC:
           tk = jj_consume_token(DEC);
-                               jjtn000.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine, Cxt.peek()));
+                               jjtn000.value=tk.image; TS.add(new STC("Dec", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case CHR:
           tk = jj_consume_token(CHR);
-                              jjtn000.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine, Cxt.peek()));
+                              jjtn000.value=tk.image; TS.add(new STC("Char", tk.image, tk.beginLine, Cxt.peek()));
           break;
         default:
           jj_la1[3] = jj_gen;
@@ -237,9 +219,9 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           throw new ParseException();
         }
         tk1 = jj_consume_token(IDENTIFIER);
-                                   jjtn000.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek()));
+                                   jjtn000.value=tk1.image; TS.add(new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek()));
         tk2 = jj_consume_token(LPAREN);
-                                jjtn000.value=tk2.image; TS.put(tk2.image, new STC("PARENTESIS APERTURA", tk2.image, tk2.beginLine, Cxt.peek()));
+                                jjtn000.value=tk2.image; TS.add(new STC("PARENTESIS APERTURA", tk2.image, tk2.beginLine, Cxt.peek()));
         label_1:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -312,9 +294,9 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           }
         }
         tk3 = jj_consume_token(RPAREN);
-                                jjtn000.value=tk3.image; TS.put(tk3.image, new STC("PARENTESIS CIERRA", tk3.image, tk3.beginLine, Cxt.peek()));
+                                jjtn000.value=tk3.image; TS.add(new STC("PARENTESIS CIERRA", tk3.image, tk3.beginLine, Cxt.peek()));
         tk4 = jj_consume_token(LBRACE);
-                                jjtn000.value=tk4.image; TS.put(tk4.image, new STC("LLAVE CIERRE", tk4.image, tk4.beginLine, Cxt.peek()));
+                                jjtn000.value=tk4.image; TS.add(new STC("LLAVE CIERRE", tk4.image, tk4.beginLine, Cxt.peek()));
    Cxt.push(jjtn000);
         Sentencias();
                                               Cxt.pop();
@@ -327,7 +309,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           ;
         }
         tk5 = jj_consume_token(RBRACE);
-                                jjtn000.value=tk4.image; TS.put(tk4.image, new STC("LLAVE APERTURA", tk4.image, tk4.beginLine, Cxt.peek()));
+                                jjtn000.value=tk4.image; TS.add(new STC("LLAVE APERTURA", tk4.image, tk4.beginLine, Cxt.peek()));
         Definiciones();
       } catch (ParseException e) {
                 int[] follow = {VOID,INT,DEC,CHR,EOF};
@@ -366,7 +348,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         TiposDatos();
                                 td = token.kind;
         var = jj_consume_token(IDENTIFIER);
-                                            jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
+                                            jjtn000.value=var.image; TS.add(new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
                                 TokenAsignaciones.InsertarSimbolo(var, td);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ASIGNACION:
@@ -388,7 +370,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           }
           jj_consume_token(COMMA);
           var = jj_consume_token(IDENTIFIER);
-                                                     jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
+                                                     jjtn000.value=var.image; TS.add(new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
                                         TokenAsignaciones.InsertarSimbolo(var, td);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ASIGNACION:
@@ -400,7 +382,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           }
         }
         tk = jj_consume_token(SEMICOLON);
-                                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));
+                                                   jjtn000.value=tk.image; TS.add(new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));
         Bloque();
       } catch (ParseException e) {
                 int[] follow = {INT,DEC,CHR,SEMICOLON,IDENTIFIER};
@@ -488,7 +470,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         TiposDatos();
                                 td = token.kind;
         var = jj_consume_token(IDENTIFIER);
-                                            jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
+                                            jjtn000.value=var.image; TS.add(new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
                                 TokenAsignaciones.InsertarSimbolo(var, td);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ASIGNACION:
@@ -510,7 +492,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           }
           jj_consume_token(COMMA);
           var = jj_consume_token(IDENTIFIER);
-                                                    jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
+                                                    jjtn000.value=var.image; TS.add(new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
                                         TokenAsignaciones.InsertarSimbolo(var, td);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ASIGNACION:
@@ -522,7 +504,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
           }
         }
         tk = jj_consume_token(SEMICOLON);
-                                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));
+                                                   jjtn000.value=tk.image; TS.add(new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));
         VS();
       } catch (ParseException e) {
                 int[] follow = {INT,DEC,CHR,IF,FOR,DO,SWITCH,SEMICOLON,IDENTIFIER};
@@ -561,7 +543,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(ASIGNACION);
-                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("IGUAL", tk.image, tk.beginLine, Cxt.peek()));
+                                   jjtn000.value=tk.image; TS.add(new STC("IGUAL", tk.image, tk.beginLine, Cxt.peek()));
         TiposAsignaciones();
                         v2 = token;
                         res = TokenAsignaciones.checkAsing(v1, v2);
@@ -704,7 +686,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(IF);
-                            jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
+                            jjtn000.value = tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
         Lparen();
         A();
         Rparen();
@@ -754,7 +736,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(ELSE);
-                              jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
+                              jjtn000.value = tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
         Lbrace();
                           Cxt.push(jjtn000);
         Sentencias();
@@ -1035,37 +1017,37 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         tk = jj_consume_token(EQ);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case LE:
         tk = jj_consume_token(LE);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case GE:
         tk = jj_consume_token(GE);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case NE:
         tk = jj_consume_token(NE);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case GR:
         tk = jj_consume_token(GR);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case MN:
         tk = jj_consume_token(MN);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value=tk.image; TS.add(new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       default:
         jj_la1[31] = jj_gen;
@@ -1089,38 +1071,38 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case PLUS:
           tk = jj_consume_token(PLUS);
-                                  jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                                  {if (true) return 1;}
+                                  jjtn000.value=tk.image; TS.add(new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                        {if (true) return 1;}
           break;
         case MINUS:
           tk = jj_consume_token(MINUS);
-                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                                   {if (true) return 1;}
+                                   jjtn000.value=tk.image; TS.add(new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                         {if (true) return 1;}
           break;
         case MULTIPLY:
           tk = jj_consume_token(MULTIPLY);
-                                      jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                                      {if (true) return 1;}
+                                      jjtn000.value=tk.image; TS.add(new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                            {if (true) return 1;}
           break;
         case DIVIDE:
           tk = jj_consume_token(DIVIDE);
-                                    jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                                    {if (true) return 1;}
+                                    jjtn000.value=tk.image; TS.add(new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                          {if (true) return 1;}
           break;
         case ANDB:
           tk = jj_consume_token(ANDB);
-                                  jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                               {if (true) return 1;}
+                                  jjtn000.value=tk.image; TS.add(new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                     {if (true) return 1;}
           break;
         case ORB:
           tk = jj_consume_token(ORB);
-                                 jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                              {if (true) return 1;}
+                                 jjtn000.value=tk.image; TS.add(new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                    {if (true) return 1;}
           break;
         case XORB:
           tk = jj_consume_token(XORB);
-                                  jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
-                                                                                                                                               {if (true) return 1;}
+                                  jjtn000.value=tk.image; TS.add(new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));
+                                                                                                                                     {if (true) return 1;}
           break;
         default:
           jj_la1[32] = jj_gen;
@@ -1151,19 +1133,19 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         tk = jj_consume_token(INT);
                       jjtree.closeNodeScope(jjtn000, true);
                       jjtc000 = false;
-                      jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                      jjtn000.value=tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case DEC:
         tk = jj_consume_token(DEC);
                       jjtree.closeNodeScope(jjtn000, true);
                       jjtc000 = false;
-                      jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                      jjtn000.value=tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       case CHR:
         tk = jj_consume_token(CHR);
                       jjtree.closeNodeScope(jjtn000, true);
                       jjtc000 = false;
-                      jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                      jjtn000.value=tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
         break;
       default:
         jj_la1[33] = jj_gen;
@@ -1186,7 +1168,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(FOR);
-                             jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
+                             jjtn000.value=tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine));
         Lparen();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case INT:
@@ -1248,7 +1230,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         TiposDatos();
                         td = token.kind;
         var = jj_consume_token(IDENTIFIER);
-                                     jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
+                                     jjtn000.value=var.image; TS.add(new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));
                         TokenAsignaciones.InsertarSimbolo(var, td);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ASIGNACION:
@@ -1295,18 +1277,17 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case DO:
           tk = jj_consume_token(DO);
-                            jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
+                            jjtn000.value=tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
           Lbrace();
                            Cxt.push(jjtn000);
           Sentencias();
                                                             Cxt.pop();
           Rbrace();
           tk1 = jj_consume_token(WHILE);
-                                jjtn000.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));
+                                jjtn000.value=tk.image; TS.add(new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));
           Lparen();
           Comparaciones();
           Rparen();
-          Semicolon();
           break;
         case WHILE:
           SentenciaWhile();
@@ -1349,7 +1330,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(WHILE);
-                               jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
+                               jjtn000.value=tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
         Lparen();
         Comparaciones();
         Rparen();
@@ -1397,7 +1378,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         v1 = jj_consume_token(IDENTIFIER);
-                              jjtn000.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine, Cxt.peek()));
+                              jjtn000.value=v1.image; TS.add(new STC("IDENTIFICADOR", v1.image, v1.beginLine, Cxt.peek()));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ASIGNACION:
           jj_consume_token(ASIGNACION);
@@ -1487,19 +1468,19 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
           tk = jj_consume_token(IDENTIFIER);
-                                      jjtn000.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek()));
+                                      jjtn000.value=tk.image; TS.add(new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case NUMBER:
           tk = jj_consume_token(NUMBER);
-                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek()));
+                                   jjtn000.value=tk.image; TS.add(new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case DECIMAL:
           tk = jj_consume_token(DECIMAL);
-                                   jjtn000.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek()));
+                                   jjtn000.value=tk.image; TS.add(new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek()));
           break;
         case CARAC:
           tk = jj_consume_token(CARAC);
-                                 jjtn000.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek()));
+                                 jjtn000.value=tk.image; TS.add(new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek()));
           break;
         default:
           jj_la1[39] = jj_gen;
@@ -1627,27 +1608,27 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(RETURN);
-                                jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
+                                jjtn000.value = tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case NUMBER:
           tk1 = jj_consume_token(NUMBER);
-                                  jjtn000.value = tk1.image; TS.put(tk1.image, new STC("NUMERO", tk1.image, tk1.beginLine, Cxt.peek()));
+                                  jjtn000.value = tk1.image; TS.add(new STC("NUMERO", tk1.image, tk1.beginLine, Cxt.peek()));
           break;
         case IDENTIFIER:
           tk1 = jj_consume_token(IDENTIFIER);
-                                      jjtn000.value = tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek()));
+                                      jjtn000.value = tk1.image; TS.add(new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek()));
           break;
         case DECIMAL:
           tk1 = jj_consume_token(DECIMAL);
-                                   jjtn000.value = tk1.image; TS.put(tk1.image, new STC("DECIMAL", tk1.image, tk1.beginLine, Cxt.peek()));
+                                   jjtn000.value = tk1.image; TS.add(new STC("DECIMAL", tk1.image, tk1.beginLine, Cxt.peek()));
           break;
         case CADENA:
           tk1 = jj_consume_token(CADENA);
-                                  jjtn000.value = tk1.image; TS.put(tk1.image, new STC("CADENA DE TEXTO", tk1.image, tk1.beginLine, Cxt.peek()));
+                                  jjtn000.value = tk1.image; TS.add(new STC("CADENA DE TEXTO", tk1.image, tk1.beginLine, Cxt.peek()));
           break;
         case CARAC:
           tk1 = jj_consume_token(CARAC);
-                                 jjtn000.value = tk1.image; TS.put(tk1.image, new STC("CARACTER", tk1.image, tk1.beginLine, Cxt.peek()));
+                                 jjtn000.value = tk1.image; TS.add(new STC("CARACTER", tk1.image, tk1.beginLine, Cxt.peek()));
           break;
         default:
           jj_la1[44] = jj_gen;
@@ -1678,7 +1659,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
     try {
       try {
         tk = jj_consume_token(SWITCH);
-                                jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
+                                jjtn000.value = tk.image; TS.add(new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));
         Lparen();
         Identifier();
         Rparen();
@@ -1686,7 +1667,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         label_12:
         while (true) {
           tk1 = jj_consume_token(CASE);
-                                jjtn000.value = tk1.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));
+                                jjtn000.value = tk1.image; TS.add(new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case IDENTIFIER:
             Identifier();
@@ -1736,7 +1717,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case DEFAUL:
           tk3 = jj_consume_token(DEFAUL);
-                                 jjtn000.value = tk3.image; TS.put(tk3.image, new STC("PALABRA RESERVADA", tk3.image, tk3.beginLine, Cxt.peek()));
+                                 jjtn000.value = tk3.image; TS.add(new STC("PALABRA RESERVADA", tk3.image, tk3.beginLine, Cxt.peek()));
           DoublePoint();
           SentenciaAsignacion();
           Semicolon();
@@ -1783,7 +1764,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(VOID);
                       jjtree.closeNodeScope(jjtn000, true);
                       jjtc000 = false;
-                      jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                      jjtn000.value = tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1800,7 +1781,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(INT);
                      jjtree.closeNodeScope(jjtn000, true);
                      jjtc000 = false;
-                     jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                     jjtn000.value = tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1817,7 +1798,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(DEC);
                      jjtree.closeNodeScope(jjtn000, true);
                      jjtc000 = false;
-                     jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                     jjtn000.value = tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1834,7 +1815,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(CHR);
                      jjtree.closeNodeScope(jjtn000, true);
                      jjtc000 = false;
-                     jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
+                     jjtn000.value = tk.image; TS.add(new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1851,7 +1832,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(IDENTIFIER);
                             jjtree.closeNodeScope(jjtn000, true);
                             jjtc000 = false;
-                            jjtn000.value = tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek()));
+                            jjtn000.value = tk.image; TS.add(new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1868,7 +1849,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(NUMBER);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value = tk.image; TS.add(new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1885,7 +1866,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(DECIMAL);
                          jjtree.closeNodeScope(jjtn000, true);
                          jjtc000 = false;
-                         jjtn000.value = tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek()));
+                         jjtn000.value = tk.image; TS.add(new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1902,7 +1883,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(CARAC);
                        jjtree.closeNodeScope(jjtn000, true);
                        jjtc000 = false;
-                       jjtn000.value = tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek()));
+                       jjtn000.value = tk.image; TS.add(new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1919,7 +1900,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(CADENA);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value = tk.image; TS.add(new STC("CADENA", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1936,7 +1917,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(BREAK);
                        jjtree.closeNodeScope(jjtn000, true);
                        jjtc000 = false;
-                       jjtn000.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine, Cxt.peek()));
+                       jjtn000.value = tk.image; TS.add(new STC("CADENA", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1953,7 +1934,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(COMMA);
                        jjtree.closeNodeScope(jjtn000, true);
                        jjtc000 = false;
-                       jjtn000.value = tk.image; TS.put(tk.image, new STC("COMA", tk.image, tk.beginLine, Cxt.peek()));
+                       jjtn000.value = tk.image; TS.add(new STC("COMA", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1970,7 +1951,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(RPAREN);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("PARENTESIS CIERRE", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value = tk.image; TS.add(new STC("PARENTESIS CIERRE", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1987,7 +1968,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(LPAREN);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("PARENTESIS APERTURA", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value = tk.image; TS.add(new STC("PARENTESIS APERTURA", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -2004,7 +1985,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(LBRACE);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("LLAVE APERTURA", tk.image, tk.beginLine, Cxt.peek()));
+                        jjtn000.value = tk.image; TS.add(new STC("LLAVE APERTURA", tk.image, tk.beginLine, Cxt.peek()));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -2021,7 +2002,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(RBRACE);
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
-                        jjtn000.value = tk.image; TS.put(tk.image, new STC("LLAVE CIERRE", tk.image, tk.beginLine));
+                        jjtn000.value = tk.image; TS.add(new STC("LLAVE CIERRE", tk.image, tk.beginLine));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -2038,7 +2019,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(SEMICOLON);
                            jjtree.closeNodeScope(jjtn000, true);
                            jjtc000 = false;
-                           jjtn000.value = tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));
+                           jjtn000.value = tk.image; TS.add(new STC("PUNTO Y COMA", tk.image, tk.beginLine));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -2055,7 +2036,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants, compConstants {/*@bgen(
       tk = jj_consume_token(DOUBLEPOINT);
                              jjtree.closeNodeScope(jjtn000, true);
                              jjtc000 = false;
-                             jjtn000.value = tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));
+                             jjtn000.value = tk.image; TS.add(new STC("PUNTO Y COMA", tk.image, tk.beginLine));
     } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -2198,6 +2179,85 @@ try {System.out.println(e.toString());  // print the error message
     try { return !jj_3_10(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(9, xla); }
+  }
+
+  static private boolean jj_3R_40() {
+    if (jj_scan_token(PLUS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_4() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_7() {
+    if (jj_3R_19()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_3() {
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_21() {
+    if (jj_3R_39()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_5() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_3()) {
+    jj_scanpos = xsp;
+    if (jj_3R_17()) return true;
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_40()) {
+    jj_scanpos = xsp;
+    if (jj_3R_41()) {
+    jj_scanpos = xsp;
+    if (jj_3R_42()) {
+    jj_scanpos = xsp;
+    if (jj_3R_43()) {
+    jj_scanpos = xsp;
+    if (jj_3R_44()) {
+    jj_scanpos = xsp;
+    if (jj_3R_45()) {
+    jj_scanpos = xsp;
+    if (jj_3R_46()) {
+    jj_scanpos = xsp;
+    if (jj_3R_47()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_23() {
+    if (jj_3R_38()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_15() {
+    if (jj_3R_29()) return true;
+    if (jj_scan_token(MAIN)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_28() {
+    if (jj_scan_token(COMMA)) return true;
+    return false;
   }
 
   static private boolean jj_3R_39() {
@@ -2481,85 +2541,6 @@ try {System.out.println(e.toString());  // print the error message
     return false;
   }
 
-  static private boolean jj_3R_40() {
-    if (jj_scan_token(PLUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_4() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_7() {
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_3() {
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_21() {
-    if (jj_3R_39()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_5() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_3()) {
-    jj_scanpos = xsp;
-    if (jj_3R_17()) return true;
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_24() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_40()) {
-    jj_scanpos = xsp;
-    if (jj_3R_41()) {
-    jj_scanpos = xsp;
-    if (jj_3R_42()) {
-    jj_scanpos = xsp;
-    if (jj_3R_43()) {
-    jj_scanpos = xsp;
-    if (jj_3R_44()) {
-    jj_scanpos = xsp;
-    if (jj_3R_45()) {
-    jj_scanpos = xsp;
-    if (jj_3R_46()) {
-    jj_scanpos = xsp;
-    if (jj_3R_47()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_23() {
-    if (jj_3R_38()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    if (jj_3R_29()) return true;
-    if (jj_scan_token(MAIN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_28() {
-    if (jj_scan_token(COMMA)) return true;
-    return false;
-  }
-
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public compTokenManager token_source;
@@ -2774,21 +2755,18 @@ try {System.out.println(e.toString());  // print the error message
       for (int i = 0; i < jj_endpos; i++) {
         jj_expentry[i] = jj_lasttokens[i];
       }
-      boolean exists = false;
-      for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
-        exists = true;
+      jj_entries_loop: for (java.util.Iterator<?> it = jj_expentries.iterator(); it.hasNext();) {
         int[] oldentry = (int[])(it.next());
         if (oldentry.length == jj_expentry.length) {
           for (int i = 0; i < jj_expentry.length; i++) {
             if (oldentry[i] != jj_expentry[i]) {
-              exists = false;
-              break;
+              continue jj_entries_loop;
             }
           }
-          if (exists) break;
+          jj_expentries.add(jj_expentry);
+          break jj_entries_loop;
         }
       }
-      if (!exists) jj_expentries.add(jj_expentry);
       if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
     }
   }
