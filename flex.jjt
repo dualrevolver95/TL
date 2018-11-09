@@ -11,6 +11,7 @@ class comp
 {
 
 	public static Hashtable TS = new Hashtable();
+	public static Stack<SimpleNode> Cxt = new Stack<SimpleNode>();
 
 	public static void main( String[] args )throws ParseException, Exception
 	{
@@ -47,7 +48,8 @@ class comp
             		System.out.println(" Valor: " + aux2.value);
             	if ( aux2.numLineas != 0 )
             		System.out.println(" Numero de linea: " + aux2.numLineas);
-
+            	if ( aux2.ambito != null )
+            		System.out.println(" Ambito: " + aux2.getAmbitoString());
 			}
 
 			System.out.println("\n\tAnalizador ha terminado.");			
@@ -158,7 +160,9 @@ SimpleNode Programa() :
 {}
 {
 	try{
-		Definiciones()<EOF>	{return jjtThis;}	
+	    {Cxt.push(jjtThis);}
+		Definiciones()<EOF>
+		{Cxt.pop(); return jjtThis;}
 	}catch(ParseException e){
 		int[] follow = {EOF}; 
 		error_skipto(follow,e);
@@ -200,24 +204,24 @@ void Funcion() :
 }
 {
 	try{
-		( tk = <VOID>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine));} 
-		| tk= <INT> {jjtThis.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine));} 
-		| tk = <DEC>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine));} 
-		| tk= <CHR>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine));}) 
+		( tk = <VOID>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk= <INT> {jjtThis.value=tk.image; TS.put(tk.image, new STC("Int", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk = <DEC>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Dec", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk= <CHR>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("Char", tk.image, tk.beginLine, Cxt.peek()));})
 
-		tk1= <IDENTIFIER> {jjtThis.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine));}
+		tk1= <IDENTIFIER> {jjtThis.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek()));}
 
-		tk2 = <LPAREN> {jjtThis.value=tk2.image; TS.put(tk2.image, new STC("PARENTESIS APERTURA", tk2.image, tk2.beginLine));}
+		tk2 = <LPAREN> {jjtThis.value=tk2.image; TS.put(tk2.image, new STC("PARENTESIS APERTURA", tk2.image, tk2.beginLine, Cxt.peek()));}
 
 		((Int()|Dec()|Chr())(Identifier())?(<COMMA>(Int()|Dec()|Chr())(Identifier())?)*)*
 
-		tk3 = <RPAREN> {jjtThis.value=tk3.image; TS.put(tk3.image, new STC("PARENTESIS CIERRA", tk3.image, tk3.beginLine));} 
+		tk3 = <RPAREN> {jjtThis.value=tk3.image; TS.put(tk3.image, new STC("PARENTESIS CIERRA", tk3.image, tk3.beginLine, Cxt.peek()));}
 
-		tk4 = <LBRACE> {jjtThis.value=tk4.image; TS.put(tk4.image, new STC("LLAVE CIERRE", tk4.image, tk4.beginLine));} 
+		tk4 = <LBRACE> {jjtThis.value=tk4.image; TS.put(tk4.image, new STC("LLAVE CIERRE", tk4.image, tk4.beginLine, Cxt.peek()));}
 
- 		Sentencias()(SentenciaReturn())?
+  {Cxt.push(jjtThis);} 		Sentencias() {Cxt.pop();} (SentenciaReturn())?
 
- 		tk5 = <RBRACE> {jjtThis.value=tk4.image; TS.put(tk4.image, new STC("LLAVE APERTURA", tk4.image, tk4.beginLine));}  
+ 		tk5 = <RBRACE> {jjtThis.value=tk4.image; TS.put(tk4.image, new STC("LLAVE APERTURA", tk4.image, tk4.beginLine, Cxt.peek()));}
 
  		Definiciones()
 	}catch(ParseException e){
@@ -239,20 +243,20 @@ void VariablesGlobales() #BloqueVariablesGlobales:
 			{
 				td = token.kind;
 			}
-			var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+			var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));}
 			{		
 				TokenAsignaciones.InsertarSimbolo(var, td);
 			} 
 			[VariablesAsignacion(var)]
 			(
 				<COMMA>
-				var = <IDENTIFIER>  {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+				var = <IDENTIFIER>  {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));}
 				{		
 					TokenAsignaciones.InsertarSimbolo(var, td);
 				} 
 				[VariablesAsignacion(var)]
 			)*	
-				tk = <SEMICOLON>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));}
+				tk = <SEMICOLON>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));}
 		)
 		(Bloque())
 	}catch(ParseException e){
@@ -274,7 +278,7 @@ void Principal() #Main:
 {
 	try{
 		Int()
-			<MAIN>Lparen()Void()Rparen()Lbrace()Sentencias()SentenciaReturn()Rbrace() 	
+			<MAIN>Lparen()Void()Rparen()Lbrace(){Cxt.push(jjtThis);} Sentencias() {Cxt.pop();} SentenciaReturn()Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
@@ -294,20 +298,20 @@ void VariablesLocales() :
 			{
 				td = token.kind;
 			}
-			var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+			var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));}
 			{		
 				TokenAsignaciones.InsertarSimbolo(var, td);
 			} 
 			[VariablesAsignacion(var)]
 			(
 				<COMMA>
-				var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+				var = <IDENTIFIER> {jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));}
 				{		
 					TokenAsignaciones.InsertarSimbolo(var, td);
 				} 
 				[VariablesAsignacion(var)]
 			)*	
-				tk = <SEMICOLON>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));} 
+				tk = <SEMICOLON>  {jjtThis.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine, Cxt.peek()));}
 		)
 		(VS())
 	}catch(ParseException e){
@@ -326,7 +330,7 @@ void VariablesAsignacion(Token v1) #Asignacion:
 }
 {
 	try{
-		tk = <ASIGNACION> {jjtThis.value=tk.image; TS.put(tk.image, new STC("IGUAL", tk.image, tk.beginLine));}
+		tk = <ASIGNACION> {jjtThis.value=tk.image; TS.put(tk.image, new STC("IGUAL", tk.image, tk.beginLine, Cxt.peek()));}
 		(TiposAsignaciones())
 		  {  
 			v2 = token;
@@ -387,7 +391,7 @@ void SentenciaIf():
 {
 	try{
 		tk = <IF> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
-		Lparen() A() Rparen() Lbrace() Sentencias() Rbrace() (Sino())? 
+		Lparen() A() Rparen() Lbrace() {Cxt.push(jjtThis);} Sentencias() {Cxt.pop();} Rbrace() (Sino())?
 	}catch(ParseException e){
 		int[] follow = {RBRACE,INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -402,7 +406,7 @@ void Sino():
 {
 	try{
 		tk = <ELSE> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
-		Lbrace() Sentencias() Rbrace()
+		Lbrace() {Cxt.push(jjtThis);} Sentencias() {Cxt.pop();} Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER}; 
 		error_skipto(follow,e);
@@ -424,7 +428,7 @@ void Comparaciones():
 {}
 {
 	try{
-		Valor()Operadores()Valor()
+		 {Cxt.push(jjtThis);} Valor()Operadores()Valor() {Cxt.pop();}
 	}catch(ParseException e){
 		int[] follow = {SEMICOLON,RPAREN,AND,OR}; 
 		error_skipto(follow,e);
@@ -453,12 +457,12 @@ void Operadores():
 	Token tk;
 }
 {
-	    tk = <EQ> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
-	  | tk = <LE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));}
-	  | tk = <GE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
-	  | tk = <NE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
-	  | tk = <GR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
-	  | tk = <MN> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
+	    tk = <EQ> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
+	  | tk = <LE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
+	  | tk = <GE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
+	  | tk = <NE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
+	  | tk = <GR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
+	  | tk = <MN> { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine, Cxt.peek()));}
 }
 int OpAritmetico():
 {
@@ -466,13 +470,13 @@ int OpAritmetico():
 }
 {
 	try{
-		  (tk = <PLUS>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <MINUS>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <MULTIPLY>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <DIVIDE>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <ANDB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <ORB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
-		| (tk = <XORB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
+		  (tk = <PLUS>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <MINUS>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <MULTIPLY>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <DIVIDE>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <ANDB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <ORB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
+		| (tk = <XORB>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine, Cxt.peek()));} {return 1;})
 		| ({return 0;})
 		
 		{return 0;}
@@ -488,9 +492,9 @@ void TiposDatos() #TipoDato:
 	Token tk;
 }
 {
-	 tk = <INT> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
-	|tk = <DEC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
-	|tk = <CHR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
+	 tk = <INT> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));}
+	|tk = <DEC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));}
+	|tk = <CHR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek()));}
 }
 
 
@@ -502,7 +506,7 @@ void SentenciaFor():
 {
 	try{
 		tk = <FOR> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
-		Lparen() (DeclaracionUnaVariable()|SentenciaAsignacion()) Semicolon() Comparaciones() Semicolon() SentenciaAsignacion() Rparen() Lbrace() Sentencias() Rbrace()
+		Lparen() (DeclaracionUnaVariable()|SentenciaAsignacion()) Semicolon() Comparaciones() Semicolon() SentenciaAsignacion() Rparen() Lbrace()  {Cxt.push(jjtThis);} Sentencias() {Cxt.pop();} Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,IF,DO,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -521,7 +525,7 @@ void DeclaracionUnaVariable():
 		{
 			td = token.kind;
 		}
-		var = <IDENTIFIER> { jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+		var = <IDENTIFIER> { jjtThis.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine, Cxt.peek()));}
 		{		
 			TokenAsignaciones.InsertarSimbolo(var, td);
 		} 
@@ -540,9 +544,9 @@ void SentenciaDo():
 }
 {
 	try{
-		tk = <DO> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
-		Lbrace() Sentencias() Rbrace() 
-		tk1 = <WHILE> { jjtThis.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine));}
+		tk = <DO> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));}
+		Lbrace()  {Cxt.push(jjtThis);} Sentencias(){Cxt.pop();} Rbrace()
+		tk1 = <WHILE> { jjtThis.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));}
 		Lparen() Comparaciones() Rparen() | SentenciaWhile()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
@@ -555,9 +559,9 @@ void SentenciaWhile():
 }
 {
 	try{
-		tk = <WHILE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
+		tk = <WHILE> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));}
 		Lparen() Comparaciones() Rparen()
-		Lbrace() Sentencias() Rbrace()
+		Lbrace()  {Cxt.push(jjtThis);} Sentencias() {Cxt.pop();} Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -576,7 +580,7 @@ void SentenciaAsignacion():
 }
 {
 	try{
-	  v1 = <IDENTIFIER> { jjtThis.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine));} 
+	  v1 = <IDENTIFIER> { jjtThis.value=v1.image; TS.put(v1.image, new STC("IDENTIFICADOR", v1.image, v1.beginLine, Cxt.peek()));}
 	  (<ASIGNACION>
 	  (TiposAsignaciones())
 	  {  
@@ -621,10 +625,10 @@ void TiposAsignaciones() #TipoAsignar:
 }
 {
 	try{
-		  tk = <IDENTIFIER> { jjtThis.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine));} 
-		| tk = <NUMBER>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine));}
-		| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine));} 
-		| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine));}
+		  tk = <IDENTIFIER> { jjtThis.value=tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk = <NUMBER>  { jjtThis.value=tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk = <DECIMAL> { jjtThis.value=tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek()));}
+		| tk = <CARAC> { jjtThis.value=tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek()));}
 	}catch(ParseException e){
 		int[] follow = {PLUS,MINUS,MULTIPLY,DIVIDE,ANDB,ORB,XORB,COMMA,SEMICOLON,INT,DEC,CHR}; 
 		error_skipto(follow,e);
@@ -652,12 +656,12 @@ void SentenciaReturn() #Return:
 }
 {
 	try{
-		tk = <RETURN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
-		(tk1 = <NUMBER> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("NUMERO", tk1.image, tk1.beginLine)); }
-		|tk1 = <IDENTIFIER> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine)); }
-		|tk1 = <DECIMAL> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("DECIMAL", tk1.image, tk1.beginLine)); }
-		|tk1 = <CADENA> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("CADENA DE TEXTO", tk1.image, tk1.beginLine)); }
-		|tk1 = <CARAC> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("CARACTER", tk1.image, tk1.beginLine)); }
+		tk = <RETURN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek())); }
+		(tk1 = <NUMBER> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("NUMERO", tk1.image, tk1.beginLine, Cxt.peek())); }
+		|tk1 = <IDENTIFIER> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine, Cxt.peek())); }
+		|tk1 = <DECIMAL> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("DECIMAL", tk1.image, tk1.beginLine, Cxt.peek())); }
+		|tk1 = <CADENA> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("CADENA DE TEXTO", tk1.image, tk1.beginLine, Cxt.peek())); }
+		|tk1 = <CARAC> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("CARACTER", tk1.image, tk1.beginLine, Cxt.peek())); }
 		)<SEMICOLON>
 	}catch(ParseException e){
 		int[] follow = {RBRACE}; 
@@ -675,16 +679,16 @@ void SentenciaSwitch():
 }
 {
 	try{
-		tk = <SWITCH> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
+		tk = <SWITCH> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek())); }
 		Lparen() Identifier() Rparen() 
 		Lbrace()
-		(tk1 = <CASE> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine)); }
+		(tk1 = <CASE> { jjtThis.value = tk1.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek())); }
 		(Identifier()|Cadena()|CARAC()|Number()|Decimal())
 		DoublePoint()
 		(SentenciaAsignacion()Semicolon())+ 
 		Break()
 		Semicolon())+
-		[tk3 = <DEFAUL>{ jjtThis.value = tk3.image; TS.put(tk3.image, new STC("PALABRA RESERVADA", tk3.image, tk3.beginLine)); }
+		[tk3 = <DEFAUL>{ jjtThis.value = tk3.image; TS.put(tk3.image, new STC("PALABRA RESERVADA", tk3.image, tk3.beginLine, Cxt.peek())); }
 		DoublePoint() (SentenciaAsignacion() Semicolon() ) Break() Semicolon()]
 		Rbrace()
 	}catch(ParseException e){
@@ -702,7 +706,7 @@ void Void():
 	Token tk;
 }
 {
-	tk = <VOID> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }
+	tk = <VOID> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Int():
@@ -710,7 +714,7 @@ void Int():
 	Token tk; 
 }
 {
-	tk = <INT> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }
+	tk = <INT> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Dec():
@@ -718,7 +722,7 @@ void Dec():
 	Token tk; 
 }
 {
-	tk = <DEC> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }
+	tk = <DEC> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Chr():
@@ -726,7 +730,7 @@ void Chr():
 	Token tk; 
 }
 {
-	tk = <CHR> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }
+	tk = <CHR> { jjtThis.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Identifier():
@@ -734,7 +738,7 @@ void Identifier():
 	Token tk; 
 }
 {
-	tk = <IDENTIFIER> { jjtThis.value = tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine)); }
+	tk = <IDENTIFIER> { jjtThis.value = tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Number():
@@ -742,7 +746,7 @@ void Number():
 	Token tk; 
 }
 {
-	tk = <NUMBER> { jjtThis.value = tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine)); }
+	tk = <NUMBER> { jjtThis.value = tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Decimal():
@@ -750,7 +754,7 @@ void Decimal():
 	Token tk; 
 }
 {
-	tk = <DECIMAL> { jjtThis.value = tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine)); }
+	tk = <DECIMAL> { jjtThis.value = tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void CARAC():
@@ -758,7 +762,7 @@ void CARAC():
 	Token tk; 
 }
 {
-	tk = <CARAC> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine)); }
+	tk = <CARAC> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Cadena():
@@ -766,7 +770,7 @@ void Cadena():
 	Token tk; 
 }
 {
-	tk = <CADENA> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine)); }
+	tk = <CADENA> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Break():
@@ -774,7 +778,7 @@ void Break():
 	Token tk;
 }
 {
-	tk = <BREAK> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine)); }
+	tk = <BREAK> { jjtThis.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Comma():
@@ -782,7 +786,7 @@ void Comma():
 	Token tk; 
 }
 {
-	tk = <COMMA> { jjtThis.value = tk.image; TS.put(tk.image, new STC("COMA", tk.image, tk.beginLine)); }
+	tk = <COMMA> { jjtThis.value = tk.image; TS.put(tk.image, new STC("COMA", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Rparen():
@@ -790,7 +794,7 @@ void Rparen():
 	Token tk; 
 }
 {
-	tk = <RPAREN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PARENTESIS CIERRE", tk.image, tk.beginLine)); }
+	tk = <RPAREN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PARENTESIS CIERRE", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Lparen():
@@ -798,7 +802,7 @@ void Lparen():
 	Token tk; 
 }
 {
-	tk = <LPAREN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PARENTESIS APERTURA", tk.image, tk.beginLine)); }
+	tk = <LPAREN> { jjtThis.value = tk.image; TS.put(tk.image, new STC("PARENTESIS APERTURA", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Lbrace():
@@ -806,7 +810,7 @@ void Lbrace():
 	Token tk; 
 }
 {
-	tk = <LBRACE> { jjtThis.value = tk.image; TS.put(tk.image, new STC("LLAVE APERTURA", tk.image, tk.beginLine)); }
+	tk = <LBRACE> { jjtThis.value = tk.image; TS.put(tk.image, new STC("LLAVE APERTURA", tk.image, tk.beginLine, Cxt.peek())); }
 }
 
 void Rbrace():
