@@ -547,7 +547,7 @@ void SentenciaDo():
 		tk = <DO> { jjtThis.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));}
 		Lbrace()  {Cxt.push(jjtThis);} Sentencias(){Cxt.pop();} Rbrace()
 		tk1 = <WHILE> { jjtThis.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));}
-		Lparen() Comparaciones() Rparen() | SentenciaWhile()
+		Lparen() Comparaciones() Rparen() Semicolon() | SentenciaWhile()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);

@@ -61,7 +61,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants/*@egen*/
 		catch(ParseException e)
 		{
 			System.out.println(e.getMessage());
-			System.out.println("\tCompil\u00c3\u00b3 con errores.");
+			System.out.println("\tCompil\u00f3 con errores.");
 		}
 	}
 }
@@ -152,7 +152,7 @@ SKIP :
 	|	< "/*" > : IN_COMMENT    //Cuando encuentra /* pasa al estado IN_COMMENT
 }
 
-//Acciones cuando est\u00c3\u00a1 en el estado IN_COMMENT
+//Acciones cuando est\u00e1 en el estado IN_COMMENT
 <IN_COMMENT> SKIP:
 {
 		<"*/"> : DEFAULT
@@ -1054,7 +1054,7 @@ void SentenciaDo():
 		tk = <DO> { jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine, Cxt.peek()));}
 		Lbrace()  {Cxt.push(jjtn000);} Sentencias(){Cxt.pop();} Rbrace()
 		tk1 = <WHILE> { jjtn000.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine, Cxt.peek()));}
-		Lparen() Comparaciones() Rparen() | SentenciaWhile()
+		Lparen() Comparaciones() Rparen() Semicolon() | SentenciaWhile()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
