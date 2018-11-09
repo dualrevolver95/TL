@@ -134,7 +134,7 @@ SKIP :
 	|	< "/*" > : IN_COMMENT    //Cuando encuentra /* pasa al estado IN_COMMENT
 }
 
-//Acciones cuando est\u00c3\u00a1 en el estado IN_COMMENT
+//Acciones cuando est\u00e1 en el estado IN_COMMENT
 <IN_COMMENT> SKIP:
 {
 		<"*/"> : DEFAULT
