@@ -2,55 +2,63 @@
 public interface compTreeConstants
 {
   public int JJTPROGRAMA = 0;
-  public int JJTVOID = 1;
+  public int JJTBLOQUE = 1;
   public int JJTBLOQUEDEDEFINICIONES = 2;
   public int JJTFUNCION = 3;
   public int JJTBLOQUEVARIABLESGLOBALES = 4;
   public int JJTMAIN = 5;
-  public int JJTASIGNACION = 6;
-  public int JJTSENTENCIAIF = 7;
-  public int JJTSINO = 8;
-  public int JJTA = 9;
-  public int JJTCOMPARACIONES = 10;
-  public int JJTVALOR = 11;
-  public int JJTEXPRESION = 12;
-  public int JJTOPERADORES = 13;
-  public int JJTOPARITMETICO = 14;
-  public int JJTTIPODATO = 15;
-  public int JJTSENTENCIAFOR = 16;
-  public int JJTDECLARACIONUNAVARIABLE = 17;
-  public int JJTSENTENCIADO = 18;
-  public int JJTSENTENCIAWHILE = 19;
-  public int JJTSENTENCIAASIGNACION = 20;
-  public int JJTTIPOASIGNAR = 21;
-  public int JJTSENTENCIAWRITE = 22;
-  public int JJTSENTENCIAREAD = 23;
-  public int JJTSENTENCIARETURN = 24;
-  public int JJTSENTENCIASWITCH = 25;
-  public int JJTINT = 26;
-  public int JJTDEC = 27;
-  public int JJTCHR = 28;
-  public int JJTIDENTIFIER = 29;
-  public int JJTNUMBER = 30;
-  public int JJTDECIMAL = 31;
-  public int JJTCARAC = 32;
-  public int JJTCOMMA = 33;
-  public int JJTRPAREN = 34;
-  public int JJTLPAREN = 35;
-  public int JJTLBRACE = 36;
-  public int JJTRBRACE = 37;
-  public int JJTOPBITS = 38;
-  public int JJTERROR_SKIPTO = 39;
+  public int JJTVARIABLESLOCALES = 6;
+  public int JJTASIGNACION = 7;
+  public int JJTVOID = 8;
+  public int JJTSENTENCIAIF = 9;
+  public int JJTSINO = 10;
+  public int JJTA = 11;
+  public int JJTCOMPARACIONES = 12;
+  public int JJTVALOR = 13;
+  public int JJTEXPRESION = 14;
+  public int JJTOPERADORES = 15;
+  public int JJTOPARITMETICO = 16;
+  public int JJTTIPODATO = 17;
+  public int JJTSENTENCIAFOR = 18;
+  public int JJTDECLARACIONUNAVARIABLE = 19;
+  public int JJTSENTENCIADO = 20;
+  public int JJTSENTENCIAWHILE = 21;
+  public int JJTSENTENCIAASIGNACION = 22;
+  public int JJTTIPOASIGNAR = 23;
+  public int JJTSENTENCIAWRITE = 24;
+  public int JJTSENTENCIAREAD = 25;
+  public int JJTRETURN = 26;
+  public int JJTSENTENCIASWITCH = 27;
+  public int JJTINT = 28;
+  public int JJTDEC = 29;
+  public int JJTCHR = 30;
+  public int JJTIDENTIFIER = 31;
+  public int JJTNUMBER = 32;
+  public int JJTDECIMAL = 33;
+  public int JJTCARAC = 34;
+  public int JJTCADENA = 35;
+  public int JJTBREAK = 36;
+  public int JJTCOMMA = 37;
+  public int JJTRPAREN = 38;
+  public int JJTLPAREN = 39;
+  public int JJTLBRACE = 40;
+  public int JJTRBRACE = 41;
+  public int JJTSEMICOLON = 42;
+  public int JJTDOUBLEPOINT = 43;
+  public int JJTOPBITS = 44;
+  public int JJTERROR_SKIPTO = 45;
 
 
   public String[] jjtNodeName = {
     "Programa",
-    "void",
+    "Bloque",
     "BloqueDeDefiniciones",
     "Funcion",
     "BloqueVariablesGlobales",
     "Main",
+    "VariablesLocales",
     "Asignacion",
+    "void",
     "SentenciaIf",
     "Sino",
     "A",
@@ -68,7 +76,7 @@ public interface compTreeConstants
     "TipoAsignar",
     "SentenciaWrite",
     "SentenciaRead",
-    "SentenciaReturn",
+    "Return",
     "SentenciaSwitch",
     "Int",
     "Dec",
@@ -77,13 +85,17 @@ public interface compTreeConstants
     "Number",
     "Decimal",
     "CARAC",
+    "Cadena",
+    "Break",
     "Comma",
     "Rparen",
     "Lparen",
     "Lbrace",
     "Rbrace",
+    "Semicolon",
+    "DoublePoint",
     "OpBits",
     "error_skipto",
   };
 }
-/* JavaCC - OriginalChecksum=eb856e2772020e0cb41e5e557d78f5fc (do not edit this line) */
+/* JavaCC - OriginalChecksum=40010a4ee8311286261c4bd146a85d57 (do not edit this line) */

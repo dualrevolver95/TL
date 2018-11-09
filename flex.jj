@@ -2,7 +2,6 @@
 /*@egen*/options {
   IGNORE_CASE = false;
                
-  OPTIMIZE_TOKEN_MANAGER = true;
 }
 
 PARSER_BEGIN(comp)
@@ -55,7 +54,7 @@ class comp/*@bgen(jjtree)*/implements compTreeConstants/*@egen*/
 
 			}
 
-			System.out.println("\tAnalizador ha terminado.");			
+			System.out.println("\n\tAnalizador ha terminado.");			
 		}
 		catch(ParseException e)
 		{
@@ -131,7 +130,7 @@ TOKEN:
 {
 	  <INT:"int"> //46
 	| <DEC: "float"> //47
-	| <CHR: "char"> //48                                                                                        //Cadena era 49
+	| <CHR: "char"> //48
 	| <NUMBER : (["0"-"9"])+>  //49
 	| <IDENTIFIER : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>  //50
 	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > //51
@@ -197,10 +196,36 @@ SimpleNode Programa() :
 }
 
 
-void Bloque()      :
-{}
-{	
-	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()
+void Bloque() :
+{/*@bgen(jjtree) Bloque */
+  ASTBloque jjtn000 = new ASTBloque(JJTBLOQUE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) Bloque */
+        try {
+/*@egen*/	
+	LOOKAHEAD(3) VariablesGlobales() | LOOKAHEAD(2) Principal()/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
 	
 }
 
@@ -216,7 +241,7 @@ void Definiciones()                       :
 	try{
 		LOOKAHEAD(3) 
 		( LOOKAHEAD(3) Funcion() | VariablesGlobales() ) 
-	| 
+		| 
 		( LOOKAHEAD(3) VariablesGlobales() | Principal() )
 	}catch(ParseException e){
 		int[] follow = {EOF}; 
@@ -255,6 +280,9 @@ void Funcion() :
 	Token tk;
 	Token tk1;
 	Token tk2;
+	Token tk3;
+	Token tk4;
+	Token tk5;
 }
 {/*@bgen(jjtree) Funcion */
         try {
@@ -267,13 +295,19 @@ void Funcion() :
 
 		tk1= <IDENTIFIER> {jjtn000.value=tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine));}
 
-		<LPAREN>
+		tk2 = <LPAREN> {jjtn000.value=tk2.image; TS.put(tk2.image, new STC("PARENTESIS APERTURA", tk2.image, tk2.beginLine));}
 
 		((Int()|Dec()|Chr())(Identifier())?(<COMMA>(Int()|Dec()|Chr())(Identifier())?)*)*
 
-		<RPAREN> 
+		tk3 = <RPAREN> {jjtn000.value=tk3.image; TS.put(tk3.image, new STC("PARENTESIS CIERRA", tk3.image, tk3.beginLine));} 
 
-		<LBRACE> Sentencias()(SentenciaReturn())? <RBRACE> Definiciones()
+		tk4 = <LBRACE> {jjtn000.value=tk4.image; TS.put(tk4.image, new STC("LLAVE CIERRE", tk4.image, tk4.beginLine));} 
+
+ 		Sentencias()(SentenciaReturn())?
+
+ 		tk5 = <RBRACE> {jjtn000.value=tk4.image; TS.put(tk4.image, new STC("LLAVE APERTURA", tk4.image, tk4.beginLine));}  
+
+ 		Definiciones()
 	}catch(ParseException e){
 		int[] follow = {VOID,INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
@@ -302,17 +336,41 @@ void Funcion() :
 
 void VariablesGlobales()                         :
 {/*@bgen(jjtree) BloqueVariablesGlobales */
-  ASTBloqueVariablesGlobales jjtn000 = new ASTBloqueVariablesGlobales(JJTBLOQUEVARIABLESGLOBALES);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTBloqueVariablesGlobales jjtn000 = new ASTBloqueVariablesGlobales(JJTBLOQUEVARIABLESGLOBALES);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	int td;
+	Token var;	
+	Token tk;
+}
 {/*@bgen(jjtree) BloqueVariablesGlobales */
         try {
 /*@egen*/
 	try{
-		(Int()|Dec()|Chr()) Identifier() (<COMMA>Identifier())* <SEMICOLON> Bloque()	
+		(
+			(TiposDatos())
+			{
+				td = token.kind;
+			}
+			var = <IDENTIFIER> {jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+			{		
+				TokenAsignaciones.InsertarSimbolo(var, td);
+			} 
+			[VariablesAsignacion(var)]
+			(
+				<COMMA>
+				var = <IDENTIFIER>  {jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
+				{		
+					TokenAsignaciones.InsertarSimbolo(var, td);
+				} 
+				[VariablesAsignacion(var)]
+			)*	
+				tk = <SEMICOLON>  {jjtn000.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));}
+		)
+		(Bloque())
 	}catch(ParseException e){
-		int[] follow = {INT,DEC,CHR,EOF}; 
+		int[] follow = {INT,DEC,CHR,SEMICOLON,IDENTIFIER}; 
 		error_skipto(follow,e);
 	}/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
@@ -344,13 +402,19 @@ void Principal()      :
         jjtree.openNodeScope(jjtn000);
 /*@egen*/
 	TokenAsignaciones.SetTables();	
+	Token tk;
+	Token tk1;
+	Token tk2;
+	Token tk3;
+	Token tk4;
+	Token tk5;
 }
 {/*@bgen(jjtree) Main */
         try {
 /*@egen*/
 	try{
-		<INT>
-			<MAIN><LPAREN><VOID><RPAREN><LBRACE>Sentencias()SentenciaReturn()<RBRACE> 	
+		Int()
+			<MAIN>Lparen()Void()Rparen()Lbrace()Sentencias()SentenciaReturn()Rbrace() 	
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,EOF}; 
 		error_skipto(follow,e);
@@ -377,38 +441,65 @@ void Principal()      :
 /*@egen*/
 }
 
-void VariablesLocales()      :
-{
+void VariablesLocales() :
+{/*@bgen(jjtree) VariablesLocales */
+        ASTVariablesLocales jjtn000 = new ASTVariablesLocales(JJTVARIABLESLOCALES);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
 	int td;
 	Token var;	
+	Token tk;
 }
-{
+{/*@bgen(jjtree) VariablesLocales */
+        try {
+/*@egen*/
 	try{
 		(
 			(TiposDatos())
 			{
 				td = token.kind;
 			}
-			var = <IDENTIFIER> 
+			var = <IDENTIFIER> {jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
 			{		
 				TokenAsignaciones.InsertarSimbolo(var, td);
 			} 
 			[VariablesAsignacion(var)]
 			(
 				<COMMA>
-				var = <IDENTIFIER> 
+				var = <IDENTIFIER> {jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
 				{		
 					TokenAsignaciones.InsertarSimbolo(var, td);
 				} 
 				[VariablesAsignacion(var)]
 			)*	
-				<SEMICOLON> 
+				tk = <SEMICOLON>  {jjtn000.value=tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine));} 
 		)
 		(VS())
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,IF,FOR,DO,SWITCH,SEMICOLON,IDENTIFIER}; 
 		error_skipto(follow,e);
-	}
+	}/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
 }
 
 void VariablesAsignacion(Token v1)            :
@@ -419,6 +510,7 @@ void VariablesAsignacion(Token v1)            :
 /*@egen*/
 	Token v2;
 	Token v3;
+	Token tk;
 	String res;	
 	boolean imp = false;
 }
@@ -426,7 +518,7 @@ void VariablesAsignacion(Token v1)            :
         try {
 /*@egen*/
 	try{
-		<ASIGNACION>
+		tk = <ASIGNACION> {jjtn000.value=tk.image; TS.put(tk.image, new STC("IGUAL", tk.image, tk.beginLine));}
 		(TiposAsignaciones())
 		  {  
 			v2 = token;
@@ -490,7 +582,7 @@ void Sentencias()      :
 	    | SentenciaIf() 	
 		| SentenciaFor()
 		| SentenciaDo()	
-		| LOOKAHEAD(2)SentenciaAsignacion()<SEMICOLON>{TokenAsignaciones.segunda = 0;}
+		| LOOKAHEAD(2)SentenciaAsignacion()Semicolon(){TokenAsignaciones.segunda = 0;}
 		| SentenciaSwitch()
 		)*
 	}catch(ParseException e){
@@ -502,15 +594,18 @@ void Sentencias()      :
 //Sentencia IF
 void SentenciaIf():
 {/*@bgen(jjtree) SentenciaIf */
-  ASTSentenciaIf jjtn000 = new ASTSentenciaIf(JJTSENTENCIAIF);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSentenciaIf jjtn000 = new ASTSentenciaIf(JJTSENTENCIAIF);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
 {/*@bgen(jjtree) SentenciaIf */
         try {
 /*@egen*/
 	try{
-		<IF><LPAREN> A() <RPAREN> <LBRACE> Sentencias() <RBRACE> (Sino())? 
+		tk = <IF> { jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
+		Lparen() A() Rparen() Lbrace() Sentencias() Rbrace() (Sino())? 
 	}catch(ParseException e){
 		int[] follow = {RBRACE,INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -540,15 +635,18 @@ void SentenciaIf():
 
 void Sino():
 {/*@bgen(jjtree) Sino */
-  ASTSino jjtn000 = new ASTSino(JJTSINO);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSino jjtn000 = new ASTSino(JJTSINO);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
 {/*@bgen(jjtree) Sino */
         try {
 /*@egen*/
 	try{
-		<ELSE><LBRACE> Sentencias() <RBRACE>
+		tk = <ELSE> { jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
+		Lbrace() Sentencias() Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,DO,SWITCH,IDENTIFIER}; 
 		error_skipto(follow,e);
@@ -659,7 +757,7 @@ void Valor():
         try {
 /*@egen*/
 	try{
-		LOOKAHEAD(2) (<IDENTIFIER> | <NUMBER>) | Expresion()
+		LOOKAHEAD(2) (Identifier() | Number()) | Expresion()
 	}catch(ParseException e){
 		int[] follow = {EQ,LE,GE,NE,GR,MN}; 
 		error_skipto(follow,e);
@@ -694,8 +792,8 @@ void Expresion():
 {/*@bgen(jjtree) Expresion */
     try {
 /*@egen*/
-    LOOKAHEAD(2)(<NUMBER> | <IDENTIFIER>)
-	|(<IDENTIFIER>|<NUMBER>) OpAritmetico() (<IDENTIFIER>|<NUMBER>)/*@bgen(jjtree)*/
+    LOOKAHEAD(2)(Number() | Identifier())
+	|(Identifier()|Number()) OpAritmetico() (Identifier()|Number())/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -734,37 +832,37 @@ void Operadores():
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
 	  | tk = <LE>/*@bgen(jjtree)*/
                       {
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));}
 	  | tk = <GE>/*@bgen(jjtree)*/
                       {
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
 	  | tk = <NE>/*@bgen(jjtree)*/
                       {
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
 	  | tk = <GR>/*@bgen(jjtree)*/
                       {
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));} 
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));} 
 	  | tk = <MN>/*@bgen(jjtree)*/
                       {
                         jjtree.closeNodeScope(jjtn000, true);
                         jjtc000 = false;
                       }
-/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine));}/*@bgen(jjtree)*/
+/*@egen*/ { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR LOGICO", tk.image, tk.beginLine));}/*@bgen(jjtree)*/
             } finally {
               if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
@@ -774,21 +872,23 @@ void Operadores():
 }
 int OpAritmetico():
 {/*@bgen(jjtree) OpAritmetico */
-  ASTOpAritmetico jjtn000 = new ASTOpAritmetico(JJTOPARITMETICO);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTOpAritmetico jjtn000 = new ASTOpAritmetico(JJTOPARITMETICO);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
 {/*@bgen(jjtree) OpAritmetico */
         try {
 /*@egen*/
 	try{
-		  (<PLUS> {return 1;})
-		| (<MINUS> {return 1;})
-		| (<MULTIPLY> {return 1;})
-		| (<DIVIDE> {return 1;})
-		| (<ANDB> {return 1;})
-		| (<ORB> {return 1;})
-		| (<XORB> {return 1;})
+		  (tk = <PLUS>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <MINUS>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <MULTIPLY>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <DIVIDE>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR ARITMETICO", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <ANDB>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <ORB>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
+		| (tk = <XORB>  { jjtn000.value=tk.image; TS.put(tk.image, new STC("OPERADOR DE BITS", tk.image, tk.beginLine));} {return 1;})
 		| ({return 0;})
 		
 		{return 0;}
@@ -846,15 +946,18 @@ void TiposDatos()          :
 //Sentencia FOR
 void SentenciaFor():
 {/*@bgen(jjtree) SentenciaFor */
-  ASTSentenciaFor jjtn000 = new ASTSentenciaFor(JJTSENTENCIAFOR);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSentenciaFor jjtn000 = new ASTSentenciaFor(JJTSENTENCIAFOR);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
 {/*@bgen(jjtree) SentenciaFor */
         try {
 /*@egen*/
 	try{
-		<FOR> <LPAREN>(DeclaracionUnaVariable()|SentenciaAsignacion())<SEMICOLON> Comparaciones() <SEMICOLON> SentenciaAsignacion() <RPAREN> <LBRACE> Sentencias() <RBRACE>
+		tk = <FOR> { jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
+		Lparen() (DeclaracionUnaVariable()|SentenciaAsignacion()) Semicolon() Comparaciones() Semicolon() SentenciaAsignacion() Rparen() Lbrace() Sentencias() Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,IF,DO,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -899,7 +1002,7 @@ void DeclaracionUnaVariable():
 		{
 			td = token.kind;
 		}
-		var = <IDENTIFIER> { jjtn000.value=var.image; TS.put(var.image, new STC("NO C", var.image, var.beginLine));}
+		var = <IDENTIFIER> { jjtn000.value=var.image; TS.put(var.image, new STC("IDENTIFICADOR", var.image, var.beginLine));}
 		{		
 			TokenAsignaciones.InsertarSimbolo(var, td);
 		} 
@@ -933,15 +1036,21 @@ void DeclaracionUnaVariable():
 //Sentencia DO
 void SentenciaDo():
 {/*@bgen(jjtree) SentenciaDo */
-  ASTSentenciaDo jjtn000 = new ASTSentenciaDo(JJTSENTENCIADO);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSentenciaDo jjtn000 = new ASTSentenciaDo(JJTSENTENCIADO);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+	Token tk1;
+}
 {/*@bgen(jjtree) SentenciaDo */
         try {
 /*@egen*/
 	try{
-		<DO> <LBRACE>Sentencias() <RBRACE> <WHILE> <LPAREN> Comparaciones() <RPAREN> | SentenciaWhile()
+		tk = <DO> { jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
+		Lbrace() Sentencias() Rbrace() 
+		tk1 = <WHILE> { jjtn000.value=tk.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine));}
+		Lparen() Comparaciones() Rparen() | SentenciaWhile()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -969,15 +1078,19 @@ void SentenciaDo():
 }
 void SentenciaWhile():
 {/*@bgen(jjtree) SentenciaWhile */
-  ASTSentenciaWhile jjtn000 = new ASTSentenciaWhile(JJTSENTENCIAWHILE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSentenciaWhile jjtn000 = new ASTSentenciaWhile(JJTSENTENCIAWHILE);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
 {/*@bgen(jjtree) SentenciaWhile */
         try {
 /*@egen*/
 	try{
-		<WHILE> <LPAREN> Comparaciones() <RPAREN> <LBRACE> Sentencias() <RBRACE>
+		tk = <WHILE> { jjtn000.value=tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine));}
+		Lparen() Comparaciones() Rparen()
+		Lbrace() Sentencias() Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,FOR,IF,SWITCH,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -1161,17 +1274,26 @@ void SentenciaRead():
 /*@egen*/
 }
 
-void SentenciaReturn():
-{/*@bgen(jjtree) SentenciaReturn */
-  ASTSentenciaReturn jjtn000 = new ASTSentenciaReturn(JJTSENTENCIARETURN);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) SentenciaReturn */
+void SentenciaReturn()        :
+{/*@bgen(jjtree) Return */
+        ASTReturn jjtn000 = new ASTReturn(JJTRETURN);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+	Token tk1;
+}
+{/*@bgen(jjtree) Return */
         try {
 /*@egen*/
 	try{
-		<RETURN>(<NUMBER>|<IDENTIFIER>|<DECIMAL>|<CADENA>|<CARAC>)<SEMICOLON>
+		tk = <RETURN> { jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
+		(tk1 = <NUMBER> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("NUMERO", tk1.image, tk1.beginLine)); }
+		|tk1 = <IDENTIFIER> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("IDENTIFICADOR", tk1.image, tk1.beginLine)); }
+		|tk1 = <DECIMAL> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("DECIMAL", tk1.image, tk1.beginLine)); }
+		|tk1 = <CADENA> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("CADENA DE TEXTO", tk1.image, tk1.beginLine)); }
+		|tk1 = <CARAC> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("CARACTER", tk1.image, tk1.beginLine)); }
+		)<SEMICOLON>
 	}catch(ParseException e){
 		int[] follow = {RBRACE}; 
 		error_skipto(follow,e);
@@ -1186,15 +1308,32 @@ void SentenciaReturn():
 
 void SentenciaSwitch():
 {/*@bgen(jjtree) SentenciaSwitch */
-  ASTSentenciaSwitch jjtn000 = new ASTSentenciaSwitch(JJTSENTENCIASWITCH);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTSentenciaSwitch jjtn000 = new ASTSentenciaSwitch(JJTSENTENCIASWITCH);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+	Token tk1;
+	Token tk2;
+	Token tk3;
+	Token tk4;
+}
 {/*@bgen(jjtree) SentenciaSwitch */
         try {
 /*@egen*/
 	try{
-		<SWITCH><LPAREN><IDENTIFIER><RPAREN><LBRACE>(<CASE>(<IDENTIFIER>|<CADENA>|<CARAC>|<NUMBER>|<DECIMAL>)<DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)+ <BREAK><SEMICOLON>)+[<DEFAUL><DOUBLEPOINT>(SentenciaAsignacion()<SEMICOLON>)<BREAK><SEMICOLON>]<RBRACE>
+		tk = <SWITCH> { jjtn000.value = tk.image; TS.put(tk.image, new STC("PALABRA RESERVADA", tk.image, tk.beginLine)); }
+		Lparen() Identifier() Rparen() 
+		Lbrace()
+		(tk1 = <CASE> { jjtn000.value = tk1.image; TS.put(tk1.image, new STC("PALABRA RESERVADA", tk1.image, tk1.beginLine)); }
+		(Identifier()|Cadena()|CARAC()|Number()|Decimal())
+		DoublePoint()
+		(SentenciaAsignacion()Semicolon())+ 
+		Break()
+		Semicolon())+
+		[tk3 = <DEFAUL>{ jjtn000.value = tk3.image; TS.put(tk3.image, new STC("PALABRA RESERVADA", tk3.image, tk3.beginLine)); }
+		DoublePoint() (SentenciaAsignacion() Semicolon() ) Break() Semicolon()]
+		Rbrace()
 	}catch(ParseException e){
 		int[] follow = {INT,DEC,CHR,IF,DO,FOR,IDENTIFIER,RBRACE,SEMICOLON,RPAREN}; 
 		error_skipto(follow,e);
@@ -1241,7 +1380,7 @@ void Void():
                       jjtree.closeNodeScope(jjtn000, true);
                       jjtc000 = false;
                     }
-/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("Void", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1266,7 +1405,7 @@ void Int():
                      jjtree.closeNodeScope(jjtn000, true);
                      jjtc000 = false;
                    }
-/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("INT", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1277,14 +1416,21 @@ void Int():
 
 void Dec():
 {/*@bgen(jjtree) Dec */
-  ASTDec jjtn000 = new ASTDec(JJTDEC);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTDec jjtn000 = new ASTDec(JJTDEC);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Dec */
         try {
 /*@egen*/
-	<DEC>/*@bgen(jjtree)*/
+	tk = <DEC>/*@bgen(jjtree)*/
+                   {
+                     jjtree.closeNodeScope(jjtn000, true);
+                     jjtc000 = false;
+                   }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1295,14 +1441,21 @@ void Dec():
 
 void Chr():
 {/*@bgen(jjtree) Chr */
-  ASTChr jjtn000 = new ASTChr(JJTCHR);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTChr jjtn000 = new ASTChr(JJTCHR);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Chr */
         try {
 /*@egen*/
-	<CHR>/*@bgen(jjtree)*/
+	tk = <CHR>/*@bgen(jjtree)*/
+                   {
+                     jjtree.closeNodeScope(jjtn000, true);
+                     jjtc000 = false;
+                   }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("TIPO DE DATO", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1313,14 +1466,21 @@ void Chr():
 
 void Identifier():
 {/*@bgen(jjtree) Identifier */
-  ASTIdentifier jjtn000 = new ASTIdentifier(JJTIDENTIFIER);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTIdentifier jjtn000 = new ASTIdentifier(JJTIDENTIFIER);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Identifier */
         try {
 /*@egen*/
-	<IDENTIFIER>/*@bgen(jjtree)*/
+	tk = <IDENTIFIER>/*@bgen(jjtree)*/
+                          {
+                            jjtree.closeNodeScope(jjtn000, true);
+                            jjtc000 = false;
+                          }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("IDENTIFICADOR", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1331,14 +1491,21 @@ void Identifier():
 
 void Number():
 {/*@bgen(jjtree) Number */
-  ASTNumber jjtn000 = new ASTNumber(JJTNUMBER);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTNumber jjtn000 = new ASTNumber(JJTNUMBER);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Number */
         try {
 /*@egen*/
-	<NUMBER>/*@bgen(jjtree)*/
+	tk = <NUMBER>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("NUMERO", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1349,14 +1516,21 @@ void Number():
 
 void Decimal():
 {/*@bgen(jjtree) Decimal */
-  ASTDecimal jjtn000 = new ASTDecimal(JJTDECIMAL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTDecimal jjtn000 = new ASTDecimal(JJTDECIMAL);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Decimal */
         try {
 /*@egen*/
-	<DECIMAL>/*@bgen(jjtree)*/
+	tk = <DECIMAL>/*@bgen(jjtree)*/
+                       {
+                         jjtree.closeNodeScope(jjtn000, true);
+                         jjtc000 = false;
+                       }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("DECIMAL", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1367,14 +1541,71 @@ void Decimal():
 
 void CARAC():
 {/*@bgen(jjtree) CARAC */
-  ASTCARAC jjtn000 = new ASTCARAC(JJTCARAC);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTCARAC jjtn000 = new ASTCARAC(JJTCARAC);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) CARAC */
         try {
 /*@egen*/
-	<CARAC>/*@bgen(jjtree)*/
+	tk = <CARAC>/*@bgen(jjtree)*/
+                     {
+                       jjtree.closeNodeScope(jjtn000, true);
+                       jjtc000 = false;
+                     }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("CARACTER", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+void Cadena():
+{/*@bgen(jjtree) Cadena */
+        ASTCadena jjtn000 = new ASTCadena(JJTCADENA);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
+{/*@bgen(jjtree) Cadena */
+        try {
+/*@egen*/
+	tk = <CADENA>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+void Break():
+{/*@bgen(jjtree) Break */
+        ASTBreak jjtn000 = new ASTBreak(JJTBREAK);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
+{/*@bgen(jjtree) Break */
+        try {
+/*@egen*/
+	tk = <BREAK>/*@bgen(jjtree)*/
+                     {
+                       jjtree.closeNodeScope(jjtn000, true);
+                       jjtc000 = false;
+                     }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("CADENA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1385,14 +1616,21 @@ void CARAC():
 
 void Comma():
 {/*@bgen(jjtree) Comma */
-  ASTComma jjtn000 = new ASTComma(JJTCOMMA);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTComma jjtn000 = new ASTComma(JJTCOMMA);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Comma */
         try {
 /*@egen*/
-	<COMMA>/*@bgen(jjtree)*/
+	tk = <COMMA>/*@bgen(jjtree)*/
+                     {
+                       jjtree.closeNodeScope(jjtn000, true);
+                       jjtc000 = false;
+                     }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("COMA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1403,14 +1641,21 @@ void Comma():
 
 void Rparen():
 {/*@bgen(jjtree) Rparen */
-  ASTRparen jjtn000 = new ASTRparen(JJTRPAREN);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTRparen jjtn000 = new ASTRparen(JJTRPAREN);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Rparen */
         try {
 /*@egen*/
-	<RPAREN>/*@bgen(jjtree)*/
+	tk = <RPAREN>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("PARENTESIS CIERRE", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1421,14 +1666,21 @@ void Rparen():
 
 void Lparen():
 {/*@bgen(jjtree) Lparen */
-  ASTLparen jjtn000 = new ASTLparen(JJTLPAREN);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTLparen jjtn000 = new ASTLparen(JJTLPAREN);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Lparen */
         try {
 /*@egen*/
-	<LPAREN>/*@bgen(jjtree)*/
+	tk = <LPAREN>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("PARENTESIS APERTURA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1439,14 +1691,21 @@ void Lparen():
 
 void Lbrace():
 {/*@bgen(jjtree) Lbrace */
-  ASTLbrace jjtn000 = new ASTLbrace(JJTLBRACE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTLbrace jjtn000 = new ASTLbrace(JJTLBRACE);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Lbrace */
         try {
 /*@egen*/
-	<LBRACE>/*@bgen(jjtree)*/
+	tk = <LBRACE>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("LLAVE APERTURA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -1457,14 +1716,71 @@ void Lbrace():
 
 void Rbrace():
 {/*@bgen(jjtree) Rbrace */
-  ASTRbrace jjtn000 = new ASTRbrace(JJTRBRACE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
+        ASTRbrace jjtn000 = new ASTRbrace(JJTRBRACE);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk; 
+}
 {/*@bgen(jjtree) Rbrace */
         try {
 /*@egen*/
-	<RBRACE>/*@bgen(jjtree)*/
+	tk = <RBRACE>/*@bgen(jjtree)*/
+                      {
+                        jjtree.closeNodeScope(jjtn000, true);
+                        jjtc000 = false;
+                      }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("LLAVE CIERRE", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+void Semicolon():
+{/*@bgen(jjtree) Semicolon */
+        ASTSemicolon jjtn000 = new ASTSemicolon(JJTSEMICOLON);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
+{/*@bgen(jjtree) Semicolon */
+        try {
+/*@egen*/
+	tk = <SEMICOLON>/*@bgen(jjtree)*/
+                         {
+                           jjtree.closeNodeScope(jjtn000, true);
+                           jjtc000 = false;
+                         }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+void DoublePoint():
+{/*@bgen(jjtree) DoublePoint */
+        ASTDoublePoint jjtn000 = new ASTDoublePoint(JJTDOUBLEPOINT);
+        boolean jjtc000 = true;
+        jjtree.openNodeScope(jjtn000);
+/*@egen*/
+	Token tk;
+}
+{/*@bgen(jjtree) DoublePoint */
+        try {
+/*@egen*/
+	tk = <DOUBLEPOINT>/*@bgen(jjtree)*/
+                           {
+                             jjtree.closeNodeScope(jjtn000, true);
+                             jjtc000 = false;
+                           }
+/*@egen*/ { jjtn000.value = tk.image; TS.put(tk.image, new STC("PUNTO Y COMA", tk.image, tk.beginLine)); }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
